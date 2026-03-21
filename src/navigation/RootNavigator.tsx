@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,8 @@ import type { RootTabParamList } from './types';
 import { HomeScreen } from '@features/timer/screens/HomeScreen';
 import { ReportScreen } from '@features/reports/screens/ReportScreen';
 import { SettingsScreen } from '@features/settings/screens/SettingsScreen';
+
+export const navigationRef = createNavigationContainerRef<RootTabParamList>();
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -44,6 +46,7 @@ export const RootNavigator: React.FC = () => {
 
   return (
     <NavigationContainer
+      ref={navigationRef}
       theme={{
         dark: theme.isDark,
         colors: {

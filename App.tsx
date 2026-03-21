@@ -9,10 +9,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Notifications from 'expo-notifications';
-import { useNavigation } from '@react-navigation/native';
 
 import { initI18n } from './src/locales/i18n';
-import { RootNavigator } from './src/navigation/RootNavigator';
+import { RootNavigator, navigationRef } from './src/navigation/RootNavigator';
 import { ToastContainer } from './src/shared/components/Toast';
 import { useSettingsStore } from './src/store/settingsStore';
 import { useTimerStore } from './src/store/timerStore';
@@ -39,7 +38,9 @@ function AppLoader() {
             | Record<string, unknown>
             | undefined;
           if (data?.['action'] === 'open_timer') {
-            // App is already in foreground when this fires — navigation handled by screens
+            if (navigationRef.isReady()) {
+              navigationRef.navigate('Home');
+            }
           }
         },
       );

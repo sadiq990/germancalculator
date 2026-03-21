@@ -18,9 +18,8 @@ A React Native mobile application for tracking work hours, generating reports, a
 - **React Native** - Cross-platform mobile development
 - **Expo** - Development platform and build tools
 - **TypeScript** - Type-safe development
-- **MobX** - State management
+- **Zustand** - State management
 - **React Navigation** - Navigation framework
-- **React Native Paper** - UI component library
 
 ## Project Structure
 

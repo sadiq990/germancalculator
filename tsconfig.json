@@ -9,21 +9,34 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@core/*": ["./src/core/*"],
-      "@store/*": ["./src/store/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@features/*": ["./src/features/*"],
-      "@navigation/*": ["./src/navigation/*"],
-      "@theme/*": ["./src/theme/*"],
-      "@locales/*": ["./src/locales/*"]
+      "@core/*": [
+        "./src/core/*"
+      ],
+      "@store/*": [
+        "./src/store/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@features/*": [
+        "./src/features/*"
+      ],
+      "@navigation/*": [
+        "./src/navigation/*"
+      ],
+      "@theme/*": [
+        "./src/theme/*"
+      ],
+      "@locales/*": [
+        "./src/locales/*"
+      ]
     },
     "baseUrl": "."
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".expo/types/**/*.d.ts",
-    "expo-env.d.ts"
+    ".expo/types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules"
