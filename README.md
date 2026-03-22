@@ -9,12 +9,31 @@ A React Native mobile application for tracking work hours, generating reports, a
 - ✏️ **Session Editing** - Long-press to edit notes or times of existing sessions
 - 📊 **Detailed Reports** - Generate monthly and weekly analytics with charts
 - 💾 **Work Hours Management** - Store and manage your employer information and work hours
-- 🌐 **Multi-Language Support** - Available in German, English, French, and Turkish
+- 🌐 **Multi-Language Support** - Available in German, English, French, and Turkish with real-time language switching
 - 🎨 **Dark/Light Mode** - Modern UI with fluid theme transitions and animations
 - 📱 **Cross-Platform** - Built with React Native and Expo for iOS and Android
 - 💬 **Toast Notifications** - User-friendly feedback notifications
 - 📄 **PDF Export** - Generate PDF reports with §4 ArbZG (rest break) warnings
 - ✨ **Rich Animations** - Digit tick transitions, pulse effects, and color-shifting buttons
+
+## Recent Updates (v2.0.0)
+
+### ✅ i18n Language Switching Fix
+- **New `useLanguage` Hook** - Custom React hook that ensures components re-render when language changes
+- **Timer Component Updates** - All timer-related components now use `useLanguage` for guaranteed translation updates
+- **Accessibility Improvements** - Added translated accessibility hints for button states
+- **Bug Fixes** - Fixed hardcoded text that wasn't updating on language selection
+
+All UI text now updates correctly and immediately when users switch languages via Settings.
+
+### 🐛 Fixed Issues
+- Timer button text ("STARTEN"/"DURDUR" etc.) now updates when changing language
+- Pause button hint text is localized in all languages
+- Employer manager accessibility labels use i18n keys
+- All timer/session screens properly reflect language changes
+
+### 📦 New Files Added
+- `src/shared/hooks/useLanguage.ts` - Language change listener hook
 
 ## Tech Stack
 
@@ -39,6 +58,8 @@ src/
 ├── shared/               # Shared components and utilities
 │   ├── components/       # Reusable UI components
 │   ├── hooks/            # Custom React hooks
+│   │   ├── useColorScheme.ts    # Theme resolution (system/light/dark preference)
+│   │   └── useLanguage.ts       # Language change listener for i18n re-renders ✨ NEW
 │   └── utils/            # Utility functions
 ├── store/                # Global state management
 ├── theme/                # Theme configuration
@@ -125,6 +146,26 @@ The app supports 4 languages:
 - 🇹🇷 Turkish (tr)
 
 Language files are located in `src/locales/` and can be easily extended.
+
+### i18n Implementation Details
+
+**useLanguage Hook** (`src/shared/hooks/useLanguage.ts`)
+- Custom React hook that wraps `useTranslation()` and adds an explicit language change listener
+- Listens to `i18next` `languageChanged` event
+- Forces component re-render when language is switched via Settings
+- Use this hook in components that display text that needs to update on language change
+
+**Usage Example:**
+```typescript
+// In timer components and other UI elements
+const { t } = useLanguage();  // Instead of useTranslation()
+const label = t('home.start');  // Text updates on language switch
+```
+
+**Why It's Needed:**
+- React-i18next's `useTranslation()` may not always trigger re-renders in all cases
+- `useLanguage` provides explicit language state tracking
+- Ensures all UI text updates immediately when user changes language
 
 ## Theme & Styling
 
