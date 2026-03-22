@@ -10,12 +10,15 @@ import { startOfDay, isSameDay, getMonth, getYear } from 'date-fns';
 import type { WorkSession } from '@core/types/models';
 import { workHoursRepository } from '@core/storage/workHoursRepository';
 import { analyticsService } from '@core/services/analyticsService';
+import { hasOverlap } from '@shared/utils/validationUtils';
+import type { TimerPhase } from '@core/types/models';
 
 export interface TimerStore {
   // State
   activeSession: WorkSession | null;
   sessions: WorkSession[];
   isRunning: boolean;
+  timerPhase: TimerPhase;
   elapsedSeconds: number;
   isLoading: boolean;
   error: string | null;
@@ -23,6 +26,10 @@ export interface TimerStore {
   // Actions
   startSession: () => Promise<void>;
   stopSession: () => Promise<void>;
+  pauseSession: () => Promise<void>;
+  resumeSession: () => Promise<void>;
+  addManualSession: (startTime: number, endTime: number, note?: string) => Promise<void>;
+  updateSession: (id: string, changes: { startTime?: number; endTime?: number; note?: string }) => Promise<void>;
   deleteSession: (id: string) => Promise<void>;
   updateSessionNote: (id: string, note: string) => Promise<void>;
   loadSessions: () => Promise<void>;
@@ -44,6 +51,7 @@ export const useTimerStore = create<TimerStore>()(
     activeSession: null,
     sessions: [],
     isRunning: false,
+    timerPhase: 'idle',
     elapsedSeconds: 0,
     isLoading: false,
     error: null,
@@ -60,6 +68,8 @@ export const useTimerStore = create<TimerStore>()(
         startTime: now,
         endTime: null,
         durationMinutes: null,
+        pausedAt: null,
+        totalPausedMs: 0,
         note: null,
         employerId: null,
         createdAt: now,
@@ -69,6 +79,7 @@ export const useTimerStore = create<TimerStore>()(
       set((state) => {
         state.activeSession = newSession;
         state.isRunning = true;
+        state.timerPhase = 'running';
         state.elapsedSeconds = 0;
         state.error = null;
       });
@@ -116,6 +127,7 @@ export const useTimerStore = create<TimerStore>()(
       set((state) => {
         state.activeSession = null;
         state.isRunning = false;
+        state.timerPhase = 'idle';
         state.elapsedSeconds = 0;
         const idx = state.sessions.findIndex((s) => s.id === completedSession.id);
         if (idx >= 0) {
@@ -134,6 +146,154 @@ export const useTimerStore = create<TimerStore>()(
         });
       } catch (err) {
         set((state) => {
+          state.error = 'errors.storage_write';
+        });
+      }
+    },
+
+    pauseSession: async () => {
+      const { activeSession, timerPhase } = get();
+      if (!activeSession) return;
+      if (timerPhase === 'paused') return;
+
+      const now = Date.now();
+      const updatedSession = { ...activeSession, pausedAt: now, updatedAt: now };
+
+      set((state) => {
+        state.activeSession = updatedSession;
+        state.timerPhase = 'paused';
+      });
+
+      try {
+        await workHoursRepository.saveSession(updatedSession);
+        analyticsService.track({ name: 'session_paused' });
+      } catch {
+        set((state) => { state.error = 'errors.storage_write'; });
+      }
+    },
+
+    resumeSession: async () => {
+      const { activeSession, timerPhase } = get();
+      if (!activeSession || activeSession.pausedAt === null || timerPhase !== 'paused') return;
+
+      const now = Date.now();
+      const elapsed = now - activeSession.pausedAt;
+      const updatedSession = {
+        ...activeSession,
+        totalPausedMs: activeSession.totalPausedMs + elapsed,
+        pausedAt: null,
+        updatedAt: now,
+      };
+
+      set((state) => {
+        state.activeSession = updatedSession;
+        state.timerPhase = 'running';
+      });
+
+      try {
+        await workHoursRepository.saveSession(updatedSession);
+        analyticsService.track({ name: 'session_resumed' });
+      } catch {
+        set((state) => { state.error = 'errors.storage_write'; });
+      }
+    },
+
+    addManualSession: async (startTime: number, endTime: number, note?: string) => {
+      const { sessions } = get();
+      if (endTime <= startTime) throw new Error('manual_entry.error_order');
+      if (endTime > Date.now()) throw new Error('manual_entry.error_future');
+      if (hasOverlap(startTime, endTime, sessions)) throw new Error('manual_entry.error_overlap');
+
+      const now = Date.now();
+      const durationMs = endTime - startTime;
+      const durationMinutes = Math.floor(durationMs / 60000);
+      const id = await Crypto.randomUUID();
+
+      const newSession: WorkSession = {
+        id,
+        startTime,
+        endTime,
+        durationMinutes,
+        pausedAt: null,
+        totalPausedMs: 0,
+        note: note ? note.slice(0, 140) : null,
+        employerId: null,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      set((state) => {
+        state.sessions.push(newSession);
+        state.sessions.sort((a, b) => b.startTime - a.startTime); // keep descending order
+      });
+
+      try {
+        await workHoursRepository.saveSession(newSession);
+      } catch {
+        set((state) => {
+          state.sessions = state.sessions.filter(s => s.id !== id);
+          state.error = 'errors.storage_write';
+        });
+      }
+    },
+
+    updateSession: async (id: string, changes: { startTime?: number; endTime?: number; note?: string }) => {
+      const { sessions } = get();
+      const existing = sessions.find(s => s.id === id);
+      if (!existing) return;
+
+      const isTimeChange = changes.startTime !== undefined || changes.endTime !== undefined;
+
+      // Active session restrictions
+      if (existing.endTime === null && isTimeChange) {
+        throw new Error('edit_session.active_locked'); // cannot change time of active session
+      }
+
+      const newStart = changes.startTime ?? existing.startTime;
+      const newEnd = changes.endTime ?? existing.endTime;
+
+      if (newEnd !== null) {
+        if (newEnd <= newStart) throw new Error('manual_entry.error_order');
+        if (newEnd > Date.now()) throw new Error('manual_entry.error_future');
+        if (hasOverlap(newStart, newEnd, sessions, id)) throw new Error('manual_entry.error_overlap');
+      }
+
+      const now = Date.now();
+      let newDuration: number | null = existing.durationMinutes;
+
+      if (newEnd !== null) {
+        const durationMs = newEnd - newStart - existing.totalPausedMs;
+        newDuration = Math.max(0, Math.floor(durationMs / 60000));
+      }
+
+      const newNote = changes.note !== undefined ? (changes.note ? changes.note.slice(0, 140) : null) : existing.note;
+      
+      const updatedSession: WorkSession = {
+        ...existing,
+        startTime: newStart,
+        endTime: newEnd,
+        durationMinutes: newDuration,
+        note: newNote,
+        updatedAt: now,
+      };
+
+      // update arrays and db
+      set((state) => {
+        const idx = state.sessions.findIndex(s => s.id === id);
+        if (idx >= 0) {
+          state.sessions[idx] = updatedSession;
+          state.sessions.sort((a, b) => b.startTime - a.startTime);
+        }
+      });
+
+      try {
+        await workHoursRepository.saveSession(updatedSession);
+      } catch {
+        // Simple rollback if needed
+        set((state) => {
+          const idx = state.sessions.findIndex(s => s.id === id);
+          if (idx >= 0) state.sessions[idx] = existing;
+          state.sessions.sort((a, b) => b.startTime - a.startTime);
           state.error = 'errors.storage_write';
         });
       }
@@ -221,6 +381,7 @@ export const useTimerStore = create<TimerStore>()(
         set((state) => {
           state.activeSession = session;
           state.isRunning = true;
+          state.timerPhase = session.pausedAt !== null ? 'paused' : 'running';
           state.elapsedSeconds = elapsed;
         });
 
@@ -234,6 +395,7 @@ export const useTimerStore = create<TimerStore>()(
       set((state) => {
         state.activeSession = null;
         state.isRunning = false;
+        state.timerPhase = 'idle';
         state.elapsedSeconds = 0;
       });
       await workHoursRepository.setActiveSessionId(null);

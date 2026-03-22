@@ -33,7 +33,7 @@ export const lightTheme: Theme = {
 };
 
 export const darkTheme: Theme = {
-  colors: DarkColors,
+  colors: DarkColors as unknown as typeof Colors,
   spacing: Spacing,
   borderRadius: BorderRadius,
   layout: Layout,

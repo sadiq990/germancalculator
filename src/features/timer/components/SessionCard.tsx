@@ -1,9 +1,9 @@
 // ══════════════════════════════════════════════════
 // FILE: src/features/timer/components/SessionCard.tsx
-// PURPOSE: Individual session card — shows times, duration, note, swipe-to-delete
+// PURPOSE: Individual session card — slide-in animation, swipe-to-delete, i18n
 // ══════════════════════════════════════════════════
 
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -12,7 +12,9 @@ import {
   Animated,
   PanResponder,
   Alert,
+  TouchableWithoutFeedback,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Card } from '@shared/components/Card';
@@ -23,9 +25,10 @@ import type { Theme } from '@theme/index';
 
 interface SessionCardProps {
   session: WorkSession;
-  employer?: Employer;
+  employer: Employer | undefined;
   onDelete: (id: string) => void;
   onUpdateNote: (id: string, note: string) => void;
+  onEdit?: (session: WorkSession) => void;
 }
 
 const SWIPE_THRESHOLD = -80;
@@ -36,13 +39,34 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   employer,
   onDelete,
   onUpdateNote,
+  onEdit,
 }) => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(session.note ?? '');
   const translateX = useRef(new Animated.Value(0)).current;
   const isSwipedOpen = useRef(false);
+
+  // Slide-in entry animation
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [slideAnim, opacityAnim]);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -84,18 +108,18 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   const handleDelete = useCallback(() => {
     closeSwipe();
     Alert.alert(
-      'Schicht löschen?',
-      'Diese Schicht wird unwiderruflich gelöscht.',
+      t('common.delete'),
+      t('settings.clear_data_confirm_message'),
       [
-        { text: 'Abbrechen', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: 'Löschen',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => onDelete(session.id),
         },
       ],
     );
-  }, [closeSwipe, onDelete, session.id]);
+  }, [closeSwipe, onDelete, session.id, t]);
 
   const handleSaveNote = useCallback(() => {
     setIsEditingNote(false);
@@ -116,9 +140,14 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     : '–';
 
   return (
-    <View
-      style={styles.wrapper}
-      accessibilityRole="none"
+    <Animated.View
+      style={[
+        styles.wrapper,
+        {
+          transform: [{ translateY: slideAnim }],
+          opacity: opacityAnim,
+        },
+      ]}
     >
       {/* Delete button revealed by swipe */}
       <View style={styles.deleteButton}>
@@ -126,7 +155,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
           onPress={handleDelete}
           style={styles.deleteTouch}
           accessibilityRole="button"
-          accessibilityLabel="Schicht löschen"
+          accessibilityLabel={t('accessibility.delete_session')}
         >
           <Typography variant="subhead" color={theme.colors.white}>
             🗑
@@ -138,80 +167,97 @@ export const SessionCard: React.FC<SessionCardProps> = ({
         style={{ transform: [{ translateX }] }}
         {...panResponder.panHandlers}
       >
-        <Card accentColor={isActive ? theme.colors.primary : accentColor}>
-          <View style={styles.header}>
-            <View style={styles.timeRow}>
-              <View style={styles.timeBlock}>
-                <Typography variant="caption2" color={theme.colors.gray400}>
-                  Beginn
-                </Typography>
-                <Typography variant="callout" style={styles.timeValue}>
-                  {formatTimestamp(session.startTime)}
-                </Typography>
+        <TouchableWithoutFeedback 
+          onLongPress={() => {
+            if (onEdit) onEdit(session); // ✓ WIRED
+          }}
+          delayLongPress={500}
+        >
+          <View>
+            <Card accentColor={isActive ? theme.colors.primary : accentColor}>
+              <View style={styles.header}>
+                <View style={styles.timeRow}>
+                  <View style={styles.timeBlock}>
+                    <Typography variant="caption2" color={theme.colors.gray400}>
+                      {t('pdf.col_start')}
+                    </Typography>
+                    <Typography variant="callout" style={styles.timeValue}>
+                      {formatTimestamp(session.startTime)}
+                    </Typography>
+                  </View>
+                  <Typography variant="body" color={theme.colors.gray400} style={styles.arrow}>
+                    →
+                  </Typography>
+                  <View style={styles.timeBlock}>
+                    <Typography variant="caption2" color={theme.colors.gray400}>
+                      {t('pdf.col_end')}
+                    </Typography>
+                    <Typography variant="callout" style={styles.timeValue}>
+                      {endTimeDisplay}
+                    </Typography>
+                  </View>
+                  <View style={styles.durationBlock}>
+                    <Typography variant="caption2" color={theme.colors.gray400}>
+                      {t('pdf.col_duration')}
+                    </Typography>
+                    <Typography
+                      variant="headline"
+                      color={isActive ? theme.colors.primary : theme.colors.gray900}
+                    >
+                      {durationDisplay}
+                    </Typography>
+                  </View>
+                </View>
               </View>
-              <Typography variant="body" color={theme.colors.gray400} style={styles.arrow}>
-                →
-              </Typography>
-              <View style={styles.timeBlock}>
-                <Typography variant="caption2" color={theme.colors.gray400}>
-                  Ende
-                </Typography>
-                <Typography variant="callout" style={styles.timeValue}>
-                  {endTimeDisplay}
-                </Typography>
-              </View>
-              <View style={styles.durationBlock}>
-                <Typography variant="caption2" color={theme.colors.gray400}>
-                  Dauer
-                </Typography>
-                <Typography
-                  variant="headline"
-                  color={isActive ? theme.colors.primary : theme.colors.gray900}
-                >
-                  {durationDisplay}
-                </Typography>
-              </View>
-            </View>
-          </View>
 
-          {/* Note section */}
-          {isEditingNote ? (
-            <TextInput
-              value={noteText}
-              onChangeText={(t) => setNoteText(t.slice(0, 140))}
-              onBlur={handleSaveNote}
-              onSubmitEditing={handleSaveNote}
-              style={[styles.noteInput, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
-              placeholder="Kurze Notiz (max. 140 Zeichen)"
-              placeholderTextColor={theme.colors.gray400}
-              returnKeyType="done"
-              autoFocus
-              maxLength={140}
-              accessibilityLabel="Schichtnotiz bearbeiten"
-            />
-          ) : (
-            <TouchableOpacity
-              onPress={() => setIsEditingNote(true)}
-              style={styles.noteTouch}
-              accessibilityRole="button"
-              accessibilityLabel={session.note !== null ? 'Notiz bearbeiten' : 'Notiz hinzufügen'}
-            >
-              {session.note !== null ? (
-                <Typography variant="footnote" color={theme.colors.gray600}>
-                  {session.note}
-                </Typography>
+              {/* Note section */}
+              {isEditingNote ? (
+                <TextInput
+                  value={noteText}
+                  onChangeText={(text) => setNoteText(text.slice(0, 140))}
+                  onBlur={handleSaveNote}
+                  onSubmitEditing={handleSaveNote}
+                  style={[styles.noteInput, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
+                  placeholder={t('home.note_placeholder')}
+                  placeholderTextColor={theme.colors.gray400}
+                  returnKeyType="done"
+                  autoFocus
+                  maxLength={140}
+                  accessibilityLabel={t('accessibility.edit_session')}
+                />
               ) : (
-                <Typography variant="footnote" color={theme.colors.gray400}>
-                  + Notiz hinzufügen
-                </Typography>
+                <TouchableOpacity
+                  onPress={() => setIsEditingNote(true)}
+                  style={styles.noteTouch}
+                  accessibilityRole="button"
+                  accessibilityLabel={session.note !== null ? t('accessibility.edit_session') : t('home.add_note')}
+                >
+                  {session.note !== null ? (
+                    <Typography variant="footnote" color={theme.colors.gray600}>
+                      {session.note}
+                    </Typography>
+                  ) : (
+                    <Typography variant="footnote" color={theme.colors.gray400}>
+                      + {t('home.add_note')}
+                    </Typography>
+                  )}
+                </TouchableOpacity>
               )}
-            </TouchableOpacity>
-          )}
-        </Card>
+            </Card>
+          </View>
+        </TouchableWithoutFeedback>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 };
+
+// ✓ SELF-TEST: SessionCard
+// □ Slide-in animation: translateY 50→0 + opacity 0→1 on mount?
+// □ Swipe-to-delete with PanResponder reveals delete button?
+// □ Delete confirmation Alert uses t() for all strings?
+// □ Beginn/Ende/Dauer labels use t('pdf.col_start'), t('pdf.col_end'), t('pdf.col_duration')?
+// □ Note placeholder uses t('home.note_placeholder')?
+// □ No hardcoded German strings remaining?
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({

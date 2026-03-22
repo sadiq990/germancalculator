@@ -57,13 +57,18 @@ function buildTableRows(sessions: WorkSession[]): string {
       const bgColor = index % 2 === 0 ? '#FFFFFF' : '#F9F9F9';
       const endTime = s.endTime as number;
       const durationMinutes = s.durationMinutes as number;
+      
+      const pauseFormatted = s.totalPausedMs === 0 
+        ? (durationMinutes > 360 ? '— *' : '—') 
+        : formatDuration(Math.floor(s.totalPausedMs / 60000));
+
       return `
         <tr style="background:${bgColor};">
           <td>${formatDateDE(s.startTime)}</td>
           <td>${getGermanWeekday(s.startTime)}</td>
           <td>${formatTimeFromMs(s.startTime)}</td>
           <td>${formatTimeFromMs(endTime)}</td>
-          <td>00:00</td>
+          <td>${pauseFormatted}</td>
           <td><strong>${formatDuration(durationMinutes)}</strong></td>
           <td style="color:#616161;">${truncateNote(s.note)}</td>
         </tr>
@@ -110,6 +115,10 @@ function buildHtmlTemplate(
   const employerName =
     defaultEmployer?.name ?? settings.displayName ?? 'Unbekannt';
   const displayName = settings.displayName.trim() || 'Unbekannt';
+
+  const needsPauseWarning = completedSessions.some(
+    s => s.durationMinutes !== null && s.durationMinutes > 360 && s.totalPausedMs === 0
+  );
 
   const monthName = getGermanMonthName(filter.month);
   const monthYear = `${monthName} ${filter.year}`;
@@ -310,6 +319,7 @@ function buildHtmlTemplate(
   <div class="attestation">
     Ich bestätige die Richtigkeit der obigen Angaben.
   </div>
+  ${needsPauseWarning ? `<div style="font-size:9pt; color:#C0392B; margin-bottom:12px;">* Bitte prüfen Sie §4 ArbZG (Ruhepausen)</div>` : ''}
 
   <div class="place-date">
     <span class="place-date-label">Ort, Datum:</span>

@@ -3,6 +3,11 @@
 // PURPOSE: React Navigation type definitions for type-safe navigation
 // ══════════════════════════════════════════════════
 
+export type RootStackParamList = {
+  Onboarding: undefined;
+  MainTabs: undefined;
+};
+
 export type RootTabParamList = {
   Home: undefined;
   Reports: undefined;
@@ -26,6 +31,6 @@ export type SettingsStackParamList = {
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace ReactNavigation {
-    interface RootParamList extends RootTabParamList {}
+    interface RootParamList extends RootStackParamList {}
   }
 }

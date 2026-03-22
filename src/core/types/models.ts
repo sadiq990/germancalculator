@@ -8,6 +8,8 @@ export interface WorkSession {
   startTime: number;              // Unix ms timestamp
   endTime: number | null;         // null = currently active
   durationMinutes: number | null; // null until session ends
+  pausedAt: number | null;        // pause start timestamp
+  totalPausedMs: number;          // total pause duration in ms
   note: string | null;            // optional shift note (max 140 chars)
   employerId: string | null;      // null = default employer
   createdAt: number;              // Unix ms timestamp
@@ -75,10 +77,13 @@ export const DEFAULT_EMPLOYER: Employer = {
   createdAt: 0,
 };
 
+export type TimerPhase = 'idle' | 'running' | 'paused';
+
 // Timer state machine — discriminated union
 export type TimerState =
   | { status: 'idle' }
   | { status: 'running'; sessionId: string; startTime: number }
+  | { status: 'paused'; sessionId: string; startTime: number; pausedAt: number }
   | { status: 'saving' }
   | { status: 'error'; message: string };
 

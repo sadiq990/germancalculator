@@ -4,14 +4,17 @@ A React Native mobile application for tracking work hours, generating reports, a
 
 ## Features
 
-- ⏱️ **Work Timer** - Track your work sessions with real-time timer functionality
+- ⏱️ **Work Timer** - Track your work sessions with Pause/Resume and real-time digit tick animations
+- ✍️ **Manual Entry** - Add past work sessions manually with date/time validation
+- ✏️ **Session Editing** - Long-press to edit notes or times of existing sessions
 - 📊 **Detailed Reports** - Generate monthly and weekly analytics with charts
 - 💾 **Work Hours Management** - Store and manage your employer information and work hours
 - 🌐 **Multi-Language Support** - Available in German, English, French, and Turkish
-- 🎨 **Dark/Light Mode** - Modern UI with theme support
+- 🎨 **Dark/Light Mode** - Modern UI with fluid theme transitions and animations
 - 📱 **Cross-Platform** - Built with React Native and Expo for iOS and Android
 - 💬 **Toast Notifications** - User-friendly feedback notifications
-- 📄 **PDF Export** - Generate PDF reports of your work statistics
+- 📄 **PDF Export** - Generate PDF reports with §4 ArbZG (rest break) warnings
+- ✨ **Rich Animations** - Digit tick transitions, pulse effects, and color-shifting buttons
 
 ## Tech Stack
 
@@ -78,18 +81,23 @@ expo start
 
 ## Scripts
 
-- `expo start` - Start the development server
+- `npm start` - Start the development server (defaults to LAN)
+- `npm run lan` - Start in LAN mode (for local WiFi testing)
+- `npm run tunnel` - Start in Tunnel mode (for remote/VPN testing via Expo Go)
 - `expo build:ios` - Build for iOS
 - `expo build:android` - Build for Android
-- `npm run type-check` - Run TypeScript type checking
+- `npm run type-check` - Run TypeScript type checking (`tsc --noEmit`)
 
 ## Key Features
 
 ### Timer Module (`src/features/timer/`)
-- Start/stop/pause work sessions
-- Real-time duration tracking and display
-- Daily statistics dashboard
-- Onboarding tips for new users
+- Start/stop/pause/resume work sessions
+- Real-time duration tracking with "digit tick" translateY animations
+- Dynamic color-shifting "Start/Stop" button based on timer phase
+- Daily statistics dashboard with legal requirement warnings
+- Interactive onboarding tips for new users
+- **Manual Entry Sheet**: Add sessions with date/time pickers and overlap validation
+- **Edit Session Sheet**: Long-press any session to modify notes or times (active sessions locked)
 
 ### Reports Module (`src/features/reports/`)
 - Monthly statistics visualization

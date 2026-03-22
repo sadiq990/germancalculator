@@ -197,13 +197,14 @@
     "rate_invalid": "Lütfen geçerli bir saatlik ücret gir."
   },
   "onboarding": {
-    "step1_title": "Zamanı takip et",
-    "step1_body": "Çalışmaya başladığında BAŞLAT'a dokun",
-    "step2_title": "Vardiyayı bitir",
-    "step2_body": "Bitirince DURDUR'a dokun",
-    "step3_title": "Aylık çalışma cetvelini dışa aktar",
-    "step3_body": "Çalışma cetvelini ayın sonunda PDF olarak dışa aktar",
-    "dismiss": "Anladım!"
+    "step1_title": "Saatlerini kaydet",
+    "step1_body": "Tek dokunuşla zaman takibini başlat. Saatlerin güvenle saklanır — internet olmadan bile.",
+    "step2_title": "Saniyeler içinde çalışma cetveli",
+    "step2_body": "Ay sonunda yasal uyumlu bir çalışma cetveli dışa aktar — vergi dairesi, muhasebecin veya işverenin için.",
+    "step3_title": "Minijob sınırı göz önünde",
+    "step3_body": "Uygulama 520 saat sınırına yaklaştığında seni otomatik olarak uyarır. Artık stres yok.",
+    "lets_go": "Hadi başlayalım",
+    "dismiss": "Atla"
   },
   "paywall": {
     "title": "Stundenrechner Pro",
@@ -240,6 +241,29 @@
     "tab_reports": "Raporlar",
     "tab_settings": "Ayarlar",
     "onboarding_step": "{{total}} adımdan {{current}}. adım"
+  },
+  "timer": {
+    "pause": "Duraklat",
+    "resume": "Devam Et",
+    "paused_label": "Duraklatıldı",
+    "pause_duration": "Mola: {{duration}}"
+  },
+  "manual_entry": {
+    "title": "Giriş Ekle",
+    "date": "Tarih",
+    "start_time": "Başlangıç Saati",
+    "end_time": "Bitiş Saati",
+    "note": "Not (isteğe bağlı)",
+    "add": "Ekle",
+    "error_overlap": "Bu zaman aralığı mevcut bir girişle çakışıyor",
+    "error_future": "Bitiş saati gelecekte olamaz",
+    "error_order": "Bitiş saati başlangıç saatinden sonra olmalıdır"
+  },
+  "edit_session": {
+    "title": "Girişi Düzenle",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "active_locked": "Aktif girişler düzenlenemez"
   },
   "notifications": {
     "reminder_title": "Stundenrechner Pro",

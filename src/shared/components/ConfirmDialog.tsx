@@ -86,7 +86,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   <Typography
                     variant="headline"
                     color={destructive ? theme.colors.danger : theme.colors.primary}
-                    style={destructive ? styles.destructiveLabel : undefined}
+                    style={destructive ? styles.destructiveLabel : {}}
                   >
                     {confirmLabel}
                   </Typography>

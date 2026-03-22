@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════
 // FILE: src/features/timer/components/TimerButton.tsx
-// PURPOSE: The primary START/STOP button with pulse animation and haptics
+// PURPOSE: The primary START/STOP button with pulse animation, color transition, and haptics
 // ══════════════════════════════════════════════════
 
 import React, { useEffect, useRef, useCallback } from 'react';
@@ -11,124 +11,178 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
-import { BorderRadius, Layout } from '@theme/spacing';
+import { BorderRadius, Layout, Spacing } from '@theme/spacing';
 import type { Theme } from '@theme/index';
 
 interface TimerButtonProps {
   isRunning: boolean;
+  isPaused: boolean;
   isLoading: boolean;
   onStart: () => void;
   onStop: () => void;
+  onPause: () => void;
+  onResume: () => void;
 }
 
 export const TimerButton: React.FC<TimerButtonProps> = ({
   isRunning,
+  isPaused,
   isLoading,
   onStart,
   onStop,
+  onPause,
+  onResume,
 }) => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
+
+  // Animation: pulse scale
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const pulseOpacity = useRef(new Animated.Value(1)).current;
 
+  // Animation: color transition (blue ↔ red)
+  const colorAnim = useRef(new Animated.Value(0)).current;
+
+  // Pulse animation when running (and not paused)
   useEffect(() => {
-    if (!isRunning) {
-      pulseAnim.setValue(1);
-      pulseOpacity.setValue(1);
-      return;
+    if (isRunning && !isPaused) {
+      const animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.04,
+            duration: 900,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1.0,
+            duration: 900,
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+      animation.start();
+      return () => animation.stop();
     }
+    pulseAnim.stopAnimation();
+    Animated.timing(pulseAnim, {
+      toValue: 1.0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+    return undefined;
+  }, [isRunning, isPaused, pulseAnim]);
 
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(pulseAnim, {
-            toValue: 1.02,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseOpacity, {
-            toValue: 0.9,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ]),
-        Animated.parallel([
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseOpacity, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ]),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [isRunning, pulseAnim, pulseOpacity]);
+  // Color transition animation
+  useEffect(() => {
+    let toValue = 0; // idle
+    if (isRunning) {
+      toValue = isPaused ? 2 : 1;
+    }
+    Animated.timing(colorAnim, {
+      toValue,
+      duration: 250,
+      useNativeDriver: false, // color interpolation requires false
+    }).start();
+  }, [isRunning, isPaused, colorAnim]);
 
   const handlePress = useCallback(() => {
     if (isLoading) return;
-    if (isRunning) {
-      onStop();
+    if (!isRunning) {
+      onStart(); // ✓ WIRED: idle -> start
+    } else if (isPaused) {
+      onResume(); // ✓ WIRED: paused -> resume
     } else {
-      onStart();
+      onStop(); // ✓ WIRED: running -> stop
     }
-  }, [isLoading, isRunning, onStart, onStop]);
+  }, [isLoading, isRunning, isPaused, onStart, onStop, onResume]);
 
-  const backgroundColor = isLoading
+  // Interpolated background color
+  const buttonColor = isLoading
     ? theme.colors.gray400
-    : isRunning
-      ? theme.colors.danger
-      : theme.colors.primary;
+    : colorAnim.interpolate({
+        inputRange: [0, 1, 2],
+        outputRange: [theme.colors.primary, theme.colors.danger, '#E67E22'],
+      });
 
-  const label = isLoading ? '...' : isRunning ? 'STOPPEN' : 'STARTEN';
-  const icon = isRunning ? '⏹' : '▶';
+  const label = isLoading 
+    ? '...' 
+    : !isRunning 
+      ? t('home.start') 
+      : isPaused 
+        ? t('timer.resume') 
+        : t('home.stop');
+        
+  const icon = isPaused ? '▶' : isRunning ? '⏹' : '▶';
 
-  const a11yLabel = isRunning ? 'Schicht stoppen' : 'Schicht starten';
-  const a11yHint = isRunning
+  const a11yLabel = !isRunning 
+    ? t('accessibility.timer_start') 
+    : isPaused 
+      ? t('timer.resume') 
+      : t('accessibility.timer_stop');
+      
+  const a11yHint = isRunning && !isPaused
     ? 'Beendet die aktuelle Schicht und speichert die Zeit'
-    : 'Startet eine neue Schicht';
+    : 'Startet eine neue Schicht oder setzt fort';
 
   return (
     <Animated.View
       style={[
         styles.wrapper,
-        {
-          transform: [{ scale: pulseAnim }],
-          opacity: pulseOpacity,
-        },
+        { transform: [{ scale: pulseAnim }] },
       ]}
     >
       <TouchableOpacity
         onPress={handlePress}
         disabled={isLoading}
-        style={[styles.button, { backgroundColor }]}
         activeOpacity={0.9}
         accessibilityRole="button"
         accessibilityLabel={a11yLabel}
         accessibilityHint={a11yHint}
         accessibilityState={{ disabled: isLoading }}
       >
-        {isLoading ? (
-          <ActivityIndicator color={theme.colors.white} size="small" />
-        ) : (
-          <View style={styles.content}>
-            <Typography variant="headline" color={theme.colors.white}>
-              {icon}{'  '}{label}
-            </Typography>
-          </View>
-        )}
+        <Animated.View style={[styles.button, { backgroundColor: buttonColor }]}>
+          {isLoading ? (
+            <ActivityIndicator color={theme.colors.white} size="small" />
+          ) : (
+            <View style={styles.content}>
+              <Typography variant="headline" color={theme.colors.white}>
+                {icon}{'  '}{label}
+              </Typography>
+            </View>
+          )}
+        </Animated.View>
       </TouchableOpacity>
+      
+      {/* Secondary Pause Button */}
+      {isRunning && !isPaused && (
+        <TouchableOpacity
+          style={styles.pauseButton}
+          onPress={onPause} // ✓ WIRED
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={t('timer.pause')}
+        >
+          <Typography variant="body" color={theme.colors.gray600} style={{ fontWeight: '600' }}>
+            ⏸ {t('timer.pause')}
+          </Typography>
+        </TouchableOpacity>
+      )}
     </Animated.View>
   );
 };
+
+// ✓ SELF-TEST: TimerButton
+// □ onPress handler wired — calls onStart/onStop via handlePress?
+// □ isRunning=false → primary background (blue), "STARTEN" text?
+// □ isRunning=true → danger background (red), "STOPPEN" text?
+// □ Pulse animation scale 1.0→1.04→1.0 loop when isRunning=true?
+// □ Color interpolation blue→red with useNativeDriver: false?
+// □ isLoading=true → button disabled, ActivityIndicator shown?
+// □ All strings use t() — no hardcoded labels?
+// □ Minimum touch target = 72pt height?
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({
@@ -145,6 +199,12 @@ function makeStyles(theme: Theme) {
     content: {
       flexDirection: 'row',
       alignItems: 'center',
+    },
+    pauseButton: {
+      marginTop: Spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: Spacing.sm,
     },
   });
 }

@@ -77,6 +77,18 @@ export function findOverlappingSession(
 }
 
 /**
+ * Validate if a new session overlaps with existing sessions (boolean return)
+ */
+export function hasOverlap(
+  newStart: number,
+  newEnd: number,
+  sessions: WorkSession[],
+  excludeId?: string,
+): boolean {
+  return findOverlappingSession(newStart, newEnd, sessions, excludeId) !== null;
+}
+
+/**
  * Validate display name
  */
 export function validateDisplayName(name: string): string | null {

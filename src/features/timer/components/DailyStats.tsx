@@ -42,7 +42,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
           key={warning.type}
           warning={warning}
           theme={theme}
-          onDismiss={onDismissWarning}
+          {...(onDismissWarning !== undefined ? { onDismiss: onDismissWarning } : {})}
         />
       ))}
     </View>

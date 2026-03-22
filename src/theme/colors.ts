@@ -6,8 +6,10 @@
 export const Colors = {
   // Primary brand
   primary: '#1558C9',
+  primaryPressed: '#1244A0',
   primaryDark: '#1244A0',
   primaryLight: '#E8EFFD',
+  timerGlow: '#E8EFFD',
 
   // Semantic
   danger: '#C0392B',
@@ -44,8 +46,10 @@ export const Colors = {
 export const DarkColors = {
   // Primary brand (same)
   primary: '#1558C9',
+  primaryPressed: '#1244A0',
   primaryDark: '#1244A0',
   primaryLight: '#1C2D4A',
+  timerGlow: '#1C2D4A',
 
   // Semantic (same)
   danger: '#C0392B',

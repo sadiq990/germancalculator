@@ -8,7 +8,6 @@ import { AppState } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useTimerStore } from '@store/timerStore';
-import { calcElapsedSeconds } from '@shared/utils/timeUtils';
 import { shouldShowSmartStop } from '@shared/utils/validationUtils';
 import { useSettingsStore } from '@store/settingsStore';
 
@@ -18,20 +17,26 @@ export interface UseTimerReturn {
   activeSession: ReturnType<typeof useTimerStore.getState>['activeSession'];
   isLoading: boolean;
   error: string | null;
+  isPaused: boolean;
   handleStart: () => Promise<void>;
   handleStop: () => Promise<void>;
+  handlePause: () => Promise<void>;
+  handleResume: () => Promise<void>;
   showSmartStop: boolean;
 }
 
 export function useTimer(): UseTimerReturn {
   const {
     isRunning,
+    timerPhase,
     elapsedSeconds,
     activeSession,
     isLoading,
     error,
     startSession,
     stopSession,
+    pauseSession,
+    resumeSession,
     setElapsedSeconds,
   } = useTimerStore();
 
@@ -46,7 +51,7 @@ export function useTimer(): UseTimerReturn {
 
   // Drive the ticker
   useEffect(() => {
-    if (!isRunning || activeSession === null) {
+    if (timerPhase !== 'running' || activeSession === null) {
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
@@ -55,16 +60,19 @@ export function useTimer(): UseTimerReturn {
     }
 
     intervalRef.current = setInterval(() => {
-      const elapsed = calcElapsedSeconds(activeSession.startTime);
+      const elapsed = Math.floor(
+        (Date.now() - activeSession.startTime - activeSession.totalPausedMs) / 1000
+      );
       setElapsedSeconds(elapsed);
     }, 1000);
 
     return () => {
+      // ✓ cleanup logic
       if (intervalRef.current !== null) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isRunning, activeSession, setElapsedSeconds]);
+  }, [timerPhase, activeSession, setElapsedSeconds]);
 
   // Restore elapsed time on app foreground
   useEffect(() => {
@@ -76,7 +84,11 @@ export function useTimer(): UseTimerReturn {
           nextState === 'active' &&
           activeSession !== null
         ) {
-          const elapsed = calcElapsedSeconds(activeSession.startTime);
+          const isPaused = activeSession.pausedAt !== null;
+          const currentPauseDuration = isPaused ? Date.now() - activeSession.pausedAt! : 0;
+          const elapsed = Math.floor(
+            (Date.now() - activeSession.startTime - activeSession.totalPausedMs - currentPauseDuration) / 1000
+          );
           setElapsedSeconds(elapsed);
         }
         appStateRef.current = nextState;
@@ -111,16 +123,29 @@ export function useTimer(): UseTimerReturn {
     }, 500);
   }, [isRunning, stopSession]);
 
+  const handlePause = useCallback(async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await pauseSession();
+  }, [pauseSession]);
+
+  const handleResume = useCallback(async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await resumeSession();
+  }, [resumeSession]);
+
   const showSmartStop = shouldShowSmartStop(elapsedSeconds, defaultShiftMinutes);
 
   return {
     isRunning,
+    isPaused: timerPhase === 'paused',
     elapsedSeconds,
     activeSession,
     isLoading,
     error,
     handleStart,
     handleStop,
+    handlePause,
+    handleResume,
     showSmartStop,
   };
 }

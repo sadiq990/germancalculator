@@ -197,13 +197,14 @@
     "rate_invalid": "Veuillez entrer un taux horaire valide."
   },
   "onboarding": {
-    "step1_title": "Suivi du temps",
-    "step1_body": "Appuie sur DÉMARRER quand tu commences à travailler",
-    "step2_title": "Terminer le shift",
-    "step2_body": "Appuie sur ARRÊTER quand tu as terminé",
-    "step3_title": "Exporter la feuille de temps mensuelle",
-    "step3_body": "Exporte ta feuille de temps en PDF à la fin du mois",
-    "dismiss": "Compris!"
+    "step1_title": "Enregistre tes heures",
+    "step1_body": "Commence le suivi d'un simple appui. Tes heures sont enregistrées en toute sécurité — même hors ligne.",
+    "step2_title": "Feuille de temps en quelques secondes",
+    "step2_body": "En fin de mois, exporte une feuille de temps conforme à la loi — pour le fisc, ton comptable ou ton employeur.",
+    "step3_title": "Limite Minijob en vue",
+    "step3_body": "L'application t'avertit automatiquement quand tu approches la limite de 520 heures. Plus de stress.",
+    "lets_go": "C'est parti",
+    "dismiss": "Passer"
   },
   "paywall": {
     "title": "Stundenrechner Pro",
@@ -240,6 +241,29 @@
     "tab_reports": "Rapports",
     "tab_settings": "Paramètres",
     "onboarding_step": "Étape {{current}} sur {{total}}"
+  },
+  "timer": {
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "paused_label": "En pause",
+    "pause_duration": "Pause : {{duration}}"
+  },
+  "manual_entry": {
+    "title": "Ajouter",
+    "date": "Date",
+    "start_time": "Heure de début",
+    "end_time": "Heure de fin",
+    "note": "Remarque (optionnel)",
+    "add": "Ajouter",
+    "error_overlap": "Cette période chevauche une entrée existante",
+    "error_future": "L'heure de fin ne peut pas être dans le futur",
+    "error_order": "L'heure de fin doit être après l'heure de début"
+  },
+  "edit_session": {
+    "title": "Modifier l'entrée",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "active_locked": "Les entrées actives ne peuvent pas être modifiées"
   },
   "notifications": {
     "reminder_title": "Stundenrechner Pro",

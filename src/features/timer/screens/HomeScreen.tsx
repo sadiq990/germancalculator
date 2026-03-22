@@ -4,6 +4,7 @@
 // ══════════════════════════════════════════════════
 
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   View,
   FlatList,
@@ -20,6 +21,8 @@ import { TimerDisplay } from '../components/TimerDisplay';
 import { DailyStats } from '../components/DailyStats';
 import { SessionCard } from '../components/SessionCard';
 import { OnboardingTip } from '../components/OnboardingTip';
+import { ManualEntrySheet } from '../components/ManualEntrySheet';
+import { EditSessionSheet } from '../components/EditSessionSheet';
 import { useTimer } from '../hooks/useTimer';
 import { useTimerStore } from '@store/timerStore';
 import { useSettingsStore } from '@store/settingsStore';
@@ -36,14 +39,18 @@ export const HomeScreen: React.FC = () => {
   const theme = useColorScheme();
   const styles = makeStyles(theme);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const {
     isRunning,
+    isPaused,
     elapsedSeconds,
     isLoading,
     error,
     handleStart,
     handleStop,
+    handlePause,
+    handleResume,
     showSmartStop,
     activeSession,
   } = useTimer();
@@ -70,6 +77,10 @@ export const HomeScreen: React.FC = () => {
 
   const [dismissedWarnings, setDismissedWarnings] = useState<Set<string>>(new Set());
   const [showOnboarding, setShowOnboarding] = useState(!settings.onboardingCompleted);
+  
+  const [isManualSheetVisible, setIsManualSheetVisible] = useState(false);
+  const [isEditSheetVisible, setIsEditSheetVisible] = useState(false);
+  const [editingSession, setEditingSession] = useState<WorkSession | null>(null);
 
   // Load sessions on mount
   useEffect(() => {
@@ -82,30 +93,33 @@ export const HomeScreen: React.FC = () => {
       if (activeSession !== null) return; // Already running
 
       const restored = await restoreActiveSession();
-      if (restored && activeSession !== null) {
-        // Check for corruption
-        if (isSessionCorrupted(activeSession.startTime)) {
-          Alert.alert(
-            'Zeitwarnung',
-            'Die Schichtdauer scheint ungewöhnlich lang zu sein. Bitte überprüfe die Start- und Endzeit.',
-            [
-              { text: 'Schicht verwerfen', onPress: () => void discardActiveSession() },
-              { text: 'Fortsetzen', style: 'cancel' },
-            ],
-          );
-        } else {
-          Alert.alert(
-            'Läufst du noch?',
-            'Es scheint, als hättest du eine laufende Schicht. Möchtest du sie fortsetzen?',
-            [
-              {
-                text: 'Nein, verwerfen',
-                style: 'destructive',
-                onPress: () => void discardActiveSession(),
-              },
-              { text: 'Ja, fortsetzen', style: 'cancel' },
-            ],
-          );
+      if (restored) {
+        const currentSession = useTimerStore.getState().activeSession;
+        if (currentSession !== null) {
+          // Check for corruption
+          if (isSessionCorrupted(currentSession.startTime)) {
+            Alert.alert(
+              t('home.clock_warning_title'),
+              t('home.clock_warning_message'),
+              [
+                { text: t('home.restore_no'), onPress: () => void discardActiveSession() },
+                { text: t('home.restore_yes'), style: 'cancel' },
+              ],
+            );
+          } else {
+            Alert.alert(
+              t('home.restore_session_title'),
+              t('home.restore_session_message'),
+              [
+                {
+                  text: t('home.restore_no'),
+                  style: 'destructive',
+                  onPress: () => void discardActiveSession(),
+                },
+                { text: t('home.restore_yes'), style: 'cancel' },
+              ],
+            );
+          }
         }
       }
     })();
@@ -136,7 +150,7 @@ export const HomeScreen: React.FC = () => {
   const handleDelete = useCallback(
     async (id: string) => {
       await deleteSession(id);
-      toast.success('Schicht gelöscht');
+      toast.success(t('home.session_deleted'));
     },
     [deleteSession, toast],
   );
@@ -177,13 +191,17 @@ export const HomeScreen: React.FC = () => {
         >
           {item.label.toUpperCase()}
         </Typography>
-        {item.sessions.map((session: WorkSession) => (
+          {item.sessions.map((session: WorkSession) => (
           <SessionCard
             key={session.id}
             session={session}
             employer={session.employerId !== null ? (getEmployerById(session.employerId) ?? undefined) : undefined}
             onDelete={(id) => void handleDelete(id)}
             onUpdateNote={(id, note) => void updateSessionNote(id, note)}
+            onEdit={(s) => {
+              setEditingSession(s);
+              setIsEditSheetVisible(true);
+            }}
           />
         ))}
       </View>
@@ -201,14 +219,19 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.header}>
             {/* Screen title */}
             <View style={styles.titleRow}>
-              <Typography variant="title1">Stunden</Typography>
-              <TouchableOpacity
-                style={[styles.proTag, { backgroundColor: theme.colors.primaryLight }]}
-                accessibilityLabel="Informationen zu Pro"
-              >
-                <Typography variant="caption2" color={theme.colors.primary}>
-                  {settings.isPro ? '✓ Pro' : 'Kostenlos'}
-                </Typography>
+              <View style={styles.titleGroup}>
+                <Typography variant="title1">{t('home.title')}</Typography>
+                <TouchableOpacity
+                  style={[styles.proTag, { backgroundColor: theme.colors.primaryLight }]}
+                  accessibilityLabel="Informationen zu Pro"
+                >
+                  <Typography variant="caption2" color={theme.colors.primary}>
+                    {settings.isPro ? t('common.pro') + ' ✓' : t('common.free')}
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity onPress={() => setIsManualSheetVisible(true)} /* ✓ WIRED */ accessibilityLabel={t('manual_entry.title')}>
+                <Typography variant="title1" color={theme.colors.primary}>+</Typography>
               </TouchableOpacity>
             </View>
 
@@ -226,9 +249,12 @@ export const HomeScreen: React.FC = () => {
             {/* Start/Stop button */}
             <TimerButton
               isRunning={isRunning}
+              isPaused={isPaused}
               isLoading={isLoading || false}
               onStart={() => void handleStart()}
               onStop={() => void handleStop()}
+              onPause={() => void handlePause()}
+              onResume={() => void handleResume()}
             />
 
             {/* Daily stats + warnings */}
@@ -247,7 +273,7 @@ export const HomeScreen: React.FC = () => {
                 color={theme.colors.gray600}
                 style={styles.sessionsLabel}
               >
-                SCHICHTEN
+                {t('home.sessions_header').toUpperCase()}
               </Typography>
             )}
           </View>
@@ -255,12 +281,25 @@ export const HomeScreen: React.FC = () => {
         ListEmptyComponent={
           <EmptyState
             emoji="⏱"
-            title="Noch keine Schichten"
-            body="Tippe STARTEN, um deine erste Schicht zu erfassen."
+            title={t('home.no_sessions_today')}
+            body={t('onboarding.step1_body')}
           />
         }
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+      />
+      <ManualEntrySheet
+        visible={isManualSheetVisible}
+        onClose={() => setIsManualSheetVisible(false)}
+      />
+
+      <EditSessionSheet
+        session={editingSession}
+        visible={isEditSheetVisible}
+        onClose={() => {
+          setIsEditSheetVisible(false);
+          setEditingSession(null);
+        }}
       />
     </ScreenWrapper>
   );
@@ -273,9 +312,13 @@ function makeStyles(theme: Theme) {
     },
     titleRow: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: Spacing.md,
+      justifyContent: 'space-between',
+      marginBottom: Spacing.xl,
+    },
+    titleGroup: {
+      flexDirection: 'row',
+      alignItems: 'center',
     },
     proTag: {
       paddingHorizontal: Spacing.sm,

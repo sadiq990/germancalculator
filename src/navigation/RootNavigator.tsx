@@ -1,22 +1,25 @@
 // ══════════════════════════════════════════════════
 // FILE: src/navigation/RootNavigator.tsx
-// PURPOSE: Root navigation setup — bottom tabs with native stack per tab
+// PURPOSE: Root navigation — stack wrapping tabs + onboarding modal
 // ══════════════════════════════════════════════════
 
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Text } from 'react-native';
 import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
-import type { RootTabParamList } from './types';
+import { useSettingsStore } from '@store/settingsStore';
+import type { RootStackParamList, RootTabParamList } from './types';
 import { HomeScreen } from '@features/timer/screens/HomeScreen';
 import { ReportScreen } from '@features/reports/screens/ReportScreen';
 import { SettingsScreen } from '@features/settings/screens/SettingsScreen';
+import { OnboardingScreen } from '@features/onboarding/screens/OnboardingScreen';
 
-export const navigationRef = createNavigationContainerRef<RootTabParamList>();
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 function TabIcon({
@@ -40,9 +43,64 @@ function TabIcon({
   );
 }
 
-export const RootNavigator: React.FC = () => {
+function MainTabs() {
   const theme = useColorScheme();
   const { t } = useTranslation();
+
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: theme.isDark ? theme.colors.gray50 : theme.colors.white,
+          borderTopColor: theme.colors.gray200,
+          borderTopWidth: 1,
+          height: theme.layout.tabBarHeight,
+          paddingBottom: 16,
+          paddingTop: 8,
+        },
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.gray400,
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="⏱" theme={theme} />
+          ),
+          tabBarAccessibilityLabel: t('accessibility.tab_home'),
+        }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={ReportScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="📄" theme={theme} />
+          ),
+          tabBarAccessibilityLabel: t('accessibility.tab_reports'),
+        }}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon focused={focused} icon="⚙️" theme={theme} />
+          ),
+          tabBarAccessibilityLabel: t('accessibility.tab_settings'),
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+export const RootNavigator: React.FC = () => {
+  const theme = useColorScheme();
+  const onboardingCompleted = useSettingsStore((s) => s.settings.onboardingCompleted);
 
   return (
     <NavigationContainer
@@ -59,53 +117,16 @@ export const RootNavigator: React.FC = () => {
         },
       }}
     >
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-          tabBarStyle: {
-            backgroundColor: theme.isDark ? theme.colors.gray50 : theme.colors.white,
-            borderTopColor: theme.colors.gray200,
-            borderTopWidth: 1,
-            height: theme.layout.tabBarHeight,
-            paddingBottom: 16,
-            paddingTop: 8,
-          },
-          tabBarShowLabel: false,
-          tabBarActiveTintColor: theme.colors.primary,
-          tabBarInactiveTintColor: theme.colors.gray400,
-        }}
-      >
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} icon="⏱" theme={theme} />
-            ),
-            tabBarAccessibilityLabel: t('accessibility.tab_home'),
-          }}
-        />
-        <Tab.Screen
-          name="Reports"
-          component={ReportScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} icon="📄" theme={theme} />
-            ),
-            tabBarAccessibilityLabel: t('accessibility.tab_reports'),
-          }}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <TabIcon focused={focused} icon="⚙️" theme={theme} />
-            ),
-            tabBarAccessibilityLabel: t('accessibility.tab_settings'),
-          }}
-        />
-      </Tab.Navigator>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!onboardingCompleted && (
+          <Stack.Screen
+            name="Onboarding"
+            component={OnboardingScreen}
+            options={{ animation: 'fade' }}
+          />
+        )}
+        <Stack.Screen name="MainTabs" component={MainTabs} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 };

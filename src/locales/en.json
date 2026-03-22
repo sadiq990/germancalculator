@@ -197,13 +197,14 @@
     "rate_invalid": "Please enter a valid hourly rate."
   },
   "onboarding": {
-    "step1_title": "Track your time",
-    "step1_body": "Tap START when you begin working",
-    "step2_title": "End your shift",
-    "step2_body": "Tap STOP when you're done",
-    "step3_title": "Export monthly timesheet",
-    "step3_body": "Export your timesheet as a PDF at the end of the month",
-    "dismiss": "Got it!"
+    "step1_title": "Track your hours",
+    "step1_body": "Start tracking with a single tap. Your hours are stored securely — even offline.",
+    "step2_title": "Timesheet in seconds",
+    "step2_body": "At the end of the month, export a legally-compliant timesheet — for the tax office, your accountant, or your employer.",
+    "step3_title": "Minijob limit in sight",
+    "step3_body": "The app warns you automatically when you're approaching the 520-hour limit. No more stress.",
+    "lets_go": "Let's go",
+    "dismiss": "Skip"
   },
   "paywall": {
     "title": "Stundenrechner Pro",
@@ -240,6 +241,29 @@
     "tab_reports": "Reports",
     "tab_settings": "Settings",
     "onboarding_step": "Step {{current}} of {{total}}"
+  },
+  "timer": {
+    "pause": "Pause",
+    "resume": "Resume",
+    "paused_label": "Paused",
+    "pause_duration": "Pause: {{duration}}"
+  },
+  "manual_entry": {
+    "title": "Add Entry",
+    "date": "Date",
+    "start_time": "Start Time",
+    "end_time": "End Time",
+    "note": "Note (optional)",
+    "add": "Add",
+    "error_overlap": "This time range overlaps with an existing entry",
+    "error_future": "End time cannot be in the future",
+    "error_order": "End time must be after start time"
+  },
+  "edit_session": {
+    "title": "Edit Entry",
+    "save": "Save",
+    "delete": "Delete",
+    "active_locked": "Active entries cannot be edited"
   },
   "notifications": {
     "reminder_title": "Stundenrechner Pro",

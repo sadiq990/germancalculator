@@ -34,7 +34,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
 
   const [isAdding, setIsAdding] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newColor, setNewColor] = useState(EMPLOYER_COLORS[0] ?? '#1558C9');
+  const [newColor, setNewColor] = useState<string>(EMPLOYER_COLORS[0] ?? '#1558C9');
   const [newRate, setNewRate] = useState('');
 
   const handleAdd = useCallback(() => {
