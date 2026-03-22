@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { modalScale } from '../../utils/animationUtils';
 
 interface ModalProps {
   isOpen: boolean;
@@ -9,66 +8,51 @@ interface ModalProps {
   title?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
-  maxWidthClass?: string;
 }
 
-export const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  footer,
-  maxWidthClass = 'max-w-md'
-}) => {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => { document.body.style.overflow = 'unset'; };
-  }, [isOpen]);
-
+export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, footer }) => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <React.Fragment>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-            <motion.div
-              variants={modalScale}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className={`w-full ${maxWidthClass} bg-white dark:bg-dark-surface rounded-xl shadow-xl border border-neutral-100 dark:border-dark-border pointer-events-auto flex flex-col max-h-[90vh]`}
-            >
-              {title && (
-                <div className="flex items-center justify-between p-4 border-b border-neutral-100 dark:border-dark-border">
-                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-dark-text">{title}</h3>
-                  <button onClick={onClose} className="p-1 rounded-md text-neutral-400 hover:text-neutral-600 dark:hover:text-dark-text hover:bg-neutral-100 dark:hover:bg-dark-border transition-colors">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-              
-              <div className="p-4 overflow-y-auto">
-                {children}
-              </div>
+          
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            className="relative w-full max-w-lg glass-heavy rounded-ios-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          >
+            {/* Header */}
+            <div className="px-6 py-4 flex items-center justify-between border-b dark:border-ios-dark-4">
+              <h2 className="text-xl font-bold tracking-tight dark:text-white">{title}</h2>
+              <button 
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-ios-dark-4 text-neutral-400 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-              {footer && (
-                <div className="p-4 border-t border-neutral-100 dark:border-dark-border bg-neutral-50 dark:bg-dark-surface/50 rounded-b-xl flex justify-end gap-2">
-                  {footer}
-                </div>
-              )}
-            </motion.div>
-          </div>
-        </React.Fragment>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-6 no-scrollbar text-neutral-600 dark:text-ios-gray-2">
+              {children}
+            </div>
+
+            {/* Footer */}
+            {footer && (
+              <div className="px-6 py-4 border-t dark:border-ios-dark-4 bg-neutral-50/50 dark:bg-ios-dark-6/50">
+                {footer}
+              </div>
+            )}
+          </motion.div>
+        </div>
       )}
     </AnimatePresence>
   );

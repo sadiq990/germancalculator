@@ -1,55 +1,48 @@
 import React from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
 
-export interface ButtonProps extends Omit<HTMLMotionProps<"button">, 'children'> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+export interface ButtonProps extends HTMLMotionProps<"button"> {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'premium';
   size?: 'sm' | 'md' | 'lg';
-  isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-  children?: React.ReactNode;
+  loading?: boolean;
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({
+  children,
   variant = 'primary',
   size = 'md',
-  isLoading = false,
-  leftIcon,
-  rightIcon,
-  children,
+  loading = false,
   className = '',
   disabled,
   ...props
 }, ref) => {
-  const baseStyles = 'inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = "inline-flex items-center justify-center font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-ios-md";
   
   const variants = {
-    primary: 'bg-primary text-white hover:bg-primary-dark focus:ring-primary dark:focus:ring-offset-dark-surface',
-    secondary: 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-dark-surface dark:text-dark-text dark:hover:bg-dark-border focus:ring-neutral-500 dark:focus:ring-offset-dark-surface',
-    ghost: 'bg-transparent text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-dark-text-secondary dark:hover:bg-dark-surface dark:hover:text-dark-text focus:ring-neutral-500 dark:focus:ring-offset-dark-surface',
-    danger: 'bg-danger text-white hover:bg-red-700 focus:ring-danger dark:focus:ring-offset-dark-surface'
+    primary: "bg-ios-blue text-white shadow-ios hover:bg-ios-blue/90",
+    secondary: "bg-ios-gray-5 dark:bg-ios-dark-4 text-ios-blue hover:bg-ios-gray-4 dark:hover:bg-ios-dark-3",
+    premium: "bg-gradient-to-r from-ios-indigo to-ios-purple text-white shadow-ios hover:opacity-90",
+    ghost: "bg-transparent text-ios-blue hover:bg-ios-blue/10",
+    danger: "bg-ios-red/10 text-ios-red hover:bg-ios-red/20",
   };
 
   const sizes = {
-    sm: 'h-8 px-3 text-sm',
-    md: 'h-9 md:h-11 px-4 text-sm md:text-base', // responsive touch target
-    lg: 'h-12 px-6 text-lg'
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-5 py-2.5 text-sm",
+    lg: "px-8 py-4 text-base",
   };
 
   return (
     <motion.button
       ref={ref}
-      whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
-      whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
-      disabled={disabled || isLoading}
+      disabled={disabled || loading}
       {...props}
     >
-      {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-      {!isLoading && leftIcon && <span className="mr-2">{leftIcon}</span>}
+      {loading ? (
+        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      ) : null}
       {children}
-      {!isLoading && rightIcon && <span className="ml-2">{rightIcon}</span>}
     </motion.button>
   );
 });
