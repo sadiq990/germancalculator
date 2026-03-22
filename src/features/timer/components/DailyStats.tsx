@@ -5,6 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Spacing, BorderRadius } from '@theme/spacing';
@@ -57,7 +58,8 @@ interface WarningBannerProps {
 }
 
 function WarningBanner({ warning, theme, onDismiss }: WarningBannerProps) {
-  const { label, bgColor, textColor } = getWarningStyle(warning, theme);
+  const { t } = useTranslation();
+  const { label, bgColor, textColor } = getWarningStyle(warning, theme, t);
 
   return (
     <View style={[{ backgroundColor: bgColor, borderRadius: BorderRadius.sm, padding: Spacing.sm, marginTop: Spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
@@ -82,29 +84,30 @@ function WarningBanner({ warning, theme, onDismiss }: WarningBannerProps) {
 function getWarningStyle(
   warning: LegalWarning,
   theme: Theme,
+  t: (key: string, options?: any) => string,
 ): { label: string; bgColor: string; textColor: string } {
   switch (warning.type) {
     case 'daily_overwork':
       return {
-        label: 'Du hast heute mehr als 10 Stunden gearbeitet.',
+        label: t('home.overwork_daily_message'),
         bgColor: theme.colors.dangerLight,
         textColor: theme.colors.danger,
       };
     case 'weekly_overwork':
       return {
-        label: 'Achtung: Über 48h/Woche (§3 ArbZG)',
+        label: t('home.overwork_weekly_message'),
         bgColor: theme.colors.dangerLight,
         textColor: theme.colors.danger,
       };
     case 'minijob_approaching':
       return {
-        label: `Du näherst dich dem monatlichen Minijob-Limit (${TAX_CONFIG.miniJobLimit} €).`,
+        label: t('home.overwork_minijob_message', { limit: TAX_CONFIG.miniJobLimit }),
         bgColor: theme.colors.warningLight,
         textColor: theme.colors.warning,
       };
     case 'break_reminder':
       return {
-        label: 'Hast du eine Pause gemacht? Deutsche Arbeitsgesetze schreiben Pausen vor.',
+        label: t('home.pause_reminder'),
         bgColor: theme.colors.warningLight,
         textColor: theme.colors.warning,
       };

@@ -49,7 +49,7 @@
     "overwork_weekly_title": "Limite hebdomadaire atteinte",
     "overwork_weekly_message": "Attention: Plus de 48h/semaine (§3 ArbZG)",
     "overwork_minijob_title": "Limite Minijob",
-    "overwork_minijob_message": "Tu approches la limite mensuelle du Minijob (520 €/an).",
+    "overwork_minijob_message": "Tu approches la limite mensuelle du Minijob ({{limit}} €).",
     "pause_reminder": "As-tu fait une pause? La loi allemande du travail exige des pauses.",
     "restore_session_title": "Tu travailles encore?",
     "restore_session_message": "Il semble que tu aies un shift actif. Veux-tu le continuer?",
@@ -202,7 +202,7 @@
     "step2_title": "Feuille de temps en quelques secondes",
     "step2_body": "En fin de mois, exporte une feuille de temps conforme à la loi — pour le fisc, ton comptable ou ton employeur.",
     "step3_title": "Limite Minijob en vue",
-    "step3_body": "L'application t'avertit automatiquement quand tu approches la limite de 520 heures. Plus de stress.",
+    "step3_body": "L'application t'avertit automatiquement quand tu approches la limite de {{limit}} €. Plus de stress.",
     "lets_go": "C'est parti",
     "dismiss": "Passer"
   },

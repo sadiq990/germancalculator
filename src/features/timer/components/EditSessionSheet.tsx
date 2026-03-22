@@ -16,7 +16,7 @@ import {
   Keyboard,
   Alert,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@shared/hooks/useLanguage';
 import { useTimerStore } from '@store/timerStore';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';

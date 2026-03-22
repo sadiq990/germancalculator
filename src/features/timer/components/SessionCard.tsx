@@ -13,13 +13,15 @@ import {
   PanResponder,
   Alert,
   TouchableWithoutFeedback,
+  Platform,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Card } from '@shared/components/Card';
-import { Spacing, BorderRadius, Layout } from '@theme/spacing';
+import { Spacing, BorderRadius } from '@theme/spacing';
 import { formatTimestamp, formatMinutesAsHHMM } from '@shared/utils/timeUtils';
+import { formatDate } from '@shared/utils/dateUtils';
 import type { WorkSession, Employer } from '@core/types/models';
 import type { Theme } from '@theme/index';
 
@@ -41,7 +43,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   onUpdateNote,
   onEdit,
 }) => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
   const [isEditingNote, setIsEditingNote] = useState(false);
@@ -62,12 +64,12 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     Animated.parallel([
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(opacityAnim, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
@@ -75,234 +77,214 @@ export const SessionCard: React.FC<SessionCardProps> = ({
 
   const panResponder = useRef(
     PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        Math.abs(gestureState.dx) > 10 && Math.abs(gestureState.dy) < 20,
-      onPanResponderMove: (_, gestureState) => {
-        const dx = Math.max(-DELETE_WIDTH - 20, Math.min(0, gestureState.dx));
-        translateX.setValue(dx);
+      onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 10,
+      onPanResponderMove: (_, gesture) => {
+        const newX = isSwipedOpen.current ? SWIPE_THRESHOLD + gesture.dx : gesture.dx;
+        if (newX <= 0 && newX >= -DELETE_WIDTH - 20) {
+          translateX.setValue(newX);
+        }
       },
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.dx < SWIPE_THRESHOLD) {
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx < -40 || (isSwipedOpen.current && gesture.dx < 20)) {
           Animated.spring(translateX, {
-            toValue: -DELETE_WIDTH,
+            toValue: SWIPE_THRESHOLD,
             useNativeDriver: true,
-          }).start(() => {
-            isSwipedOpen.current = true;
-          });
+          }).start();
+          isSwipedOpen.current = true;
         } else {
           Animated.spring(translateX, {
             toValue: 0,
             useNativeDriver: true,
-          }).start(() => {
-            isSwipedOpen.current = false;
-          });
+          }).start();
+          isSwipedOpen.current = false;
         }
       },
     }),
   ).current;
 
-  const closeSwipe = useCallback(() => {
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start(() => {
-      isSwipedOpen.current = false;
-    });
-  }, [translateX]);
-
-  const handleDelete = useCallback(() => {
-    closeSwipe();
+  const handleDeleteConfirm = useCallback(() => {
     Alert.alert(
-      t('common.delete'),
+      t('home.session_deleted'),
       t('settings.clear_data_confirm_message'),
       [
         { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: () => onDelete(session.id),
-        },
+        { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(session.id) },
       ],
     );
-  }, [closeSwipe, onDelete, session.id, t]);
+  }, [onDelete, session.id, t]);
 
-  const handleSaveNote = useCallback(() => {
+  const handleNoteSubmit = useCallback(() => {
+    onUpdateNote(session.id, noteText);
     setIsEditingNote(false);
-    if (noteText !== session.note) {
-      onUpdateNote(session.id, noteText);
-    }
-  }, [noteText, session.id, session.note, onUpdateNote]);
+  }, [onUpdateNote, session.id, noteText]);
 
-  const accentColor = employer?.color ?? theme.colors.primary;
-  const isActive = session.endTime === null;
-
-  const endTimeDisplay = session.endTime !== null
-    ? formatTimestamp(session.endTime)
-    : '–';
-
-  const durationDisplay = session.durationMinutes !== null
-    ? formatMinutesAsHHMM(session.durationMinutes)
-    : '–';
+  const durationStr = formatMinutesAsHHMM(session.durationMinutes ?? 0);
+  const dateStr = formatDate(session.startTime);
 
   return (
-    <Animated.View
-      style={[
-        styles.wrapper,
-        {
-          transform: [{ translateY: slideAnim }],
-          opacity: opacityAnim,
-        },
-      ]}
-    >
-      {/* Delete button revealed by swipe */}
-      <View style={styles.deleteButton}>
-        <TouchableOpacity
-          onPress={handleDelete}
-          style={styles.deleteTouch}
-          accessibilityRole="button"
-          accessibilityLabel={t('accessibility.delete_session')}
-        >
-          <Typography variant="subhead" color={theme.colors.white}>
-            🗑
+    <View style={styles.outerContainer}>
+      <Animated.View 
+        style={[
+          styles.deleteAction, 
+          { 
+            opacity: translateX.interpolate({
+              inputRange: [SWIPE_THRESHOLD, 0],
+              outputRange: [1, 0],
+              extrapolate: 'clamp',
+            }) 
+          }
+        ]}
+      >
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteConfirm}>
+          <Typography variant="caption1" color="white">
+            {t('common.delete')}
           </Typography>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       <Animated.View
-        style={{ transform: [{ translateX }] }}
+        style={[
+          styles.cardWrapper,
+          {
+            transform: [{ translateX }, { translateY: slideAnim }],
+            opacity: opacityAnim,
+          },
+        ]}
         {...panResponder.panHandlers}
       >
-        <TouchableWithoutFeedback 
-          onLongPress={() => {
-            if (onEdit) onEdit(session); // ✓ WIRED
-          }}
-          delayLongPress={500}
-        >
-          <View>
-            <Card accentColor={isActive ? theme.colors.primary : accentColor}>
-              <View style={styles.header}>
-                <View style={styles.timeRow}>
-                  <View style={styles.timeBlock}>
-                    <Typography variant="caption2" color={theme.colors.gray400}>
-                      {t('pdf.col_start')}
-                    </Typography>
-                    <Typography variant="callout" style={styles.timeValue}>
-                      {formatTimestamp(session.startTime)}
-                    </Typography>
-                  </View>
-                  <Typography variant="body" color={theme.colors.gray400} style={styles.arrow}>
-                    →
-                  </Typography>
-                  <View style={styles.timeBlock}>
-                    <Typography variant="caption2" color={theme.colors.gray400}>
-                      {t('pdf.col_end')}
-                    </Typography>
-                    <Typography variant="callout" style={styles.timeValue}>
-                      {endTimeDisplay}
-                    </Typography>
-                  </View>
-                  <View style={styles.durationBlock}>
-                    <Typography variant="caption2" color={theme.colors.gray400}>
-                      {t('pdf.col_duration')}
-                    </Typography>
-                    <Typography
-                      variant="headline"
-                      color={isActive ? theme.colors.primary : theme.colors.gray900}
-                    >
-                      {durationDisplay}
-                    </Typography>
-                  </View>
-                </View>
+        <Card style={styles.card}>
+          <TouchableOpacity
+            style={styles.content}
+            onPress={() => onEdit?.(session)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.mainInfo}>
+              <View style={styles.timeInfo}>
+                <Typography variant="headline">
+                  {durationStr}
+                </Typography>
+                <Typography variant="caption2" color={theme.colors.gray400}>
+                  {dateStr}
+                </Typography>
               </View>
 
-              {/* Note section */}
-              {isEditingNote ? (
-                <TextInput
-                  value={noteText}
-                  onChangeText={(text) => setNoteText(text.slice(0, 140))}
-                  onBlur={handleSaveNote}
-                  onSubmitEditing={handleSaveNote}
-                  style={[styles.noteInput, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
-                  placeholder={t('home.note_placeholder')}
-                  placeholderTextColor={theme.colors.gray400}
-                  returnKeyType="done"
-                  autoFocus
-                  maxLength={140}
-                  accessibilityLabel={t('accessibility.edit_session')}
-                />
-              ) : (
-                <TouchableOpacity
-                  onPress={() => setIsEditingNote(true)}
-                  style={styles.noteTouch}
-                  accessibilityRole="button"
-                  accessibilityLabel={session.note !== null ? t('accessibility.edit_session') : t('home.add_note')}
-                >
-                  {session.note !== null ? (
-                    <Typography variant="footnote" color={theme.colors.gray600}>
-                      {session.note}
+              <View style={styles.employerInfo}>
+                {employer && (
+                  <View style={[styles.employerBadge, { backgroundColor: employer.color + '20' }]}>
+                    <View style={[styles.colorDot, { backgroundColor: employer.color }]} />
+                    <Typography variant="caption1" color={employer.color}>
+                      {employer.name}
                     </Typography>
-                  ) : (
-                    <Typography variant="footnote" color={theme.colors.gray400}>
-                      + {t('home.add_note')}
-                    </Typography>
-                  )}
-                </TouchableOpacity>
-              )}
-            </Card>
-          </View>
-        </TouchableWithoutFeedback>
+                  </View>
+                )}
+                <Typography variant="caption2" color={theme.colors.gray400}>
+                  {formatTimestamp(session.startTime)} - {session.endTime ? formatTimestamp(session.endTime) : '--:--'}
+                </Typography>
+              </View>
+            </View>
+
+            {/* Note Section */}
+            <TouchableWithoutFeedback onPress={() => setIsEditingNote(true)}>
+              <View style={styles.noteContainer}>
+                {isEditingNote ? (
+                  <TextInput
+                    style={styles.noteInput}
+                    value={noteText}
+                    onChangeText={setNoteText}
+                    onBlur={handleNoteSubmit}
+                    autoFocus
+                    placeholder={t('home.add_note')}
+                    maxLength={140}
+                  />
+                ) : (
+                  <Typography
+                    variant="footnote"
+                    color={session.note ? theme.colors.gray600 : theme.colors.gray400}
+                    numberOfLines={2}
+                  >
+                    {session.note || t('home.add_note')}
+                  </Typography>
+                )}
+              </View>
+            </TouchableWithoutFeedback>
+          </TouchableOpacity>
+        </Card>
       </Animated.View>
-    </Animated.View>
+    </View>
   );
 };
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({
-    wrapper: {
+    outerContainer: {
       marginBottom: Spacing.sm,
       position: 'relative',
     },
-    deleteButton: {
+    cardWrapper: {
+      flex: 1,
+    },
+    card: {
+      padding: 0,
+      overflow: 'hidden',
+    },
+    content: {
+      padding: Spacing.md,
+    },
+    mainInfo: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: Spacing.sm,
+    },
+    timeInfo: {
+      gap: 2,
+    },
+    employerInfo: {
+      alignItems: 'flex-end',
+      gap: 4,
+    },
+    employerBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: BorderRadius.full,
+      gap: 4,
+    },
+    colorDot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+    },
+    noteContainer: {
+      marginTop: Spacing.xs,
+      paddingTop: Spacing.xs,
+      borderTopWidth: 1,
+      borderTopColor: theme.colors.gray100,
+      minHeight: 24,
+    },
+    noteInput: {
+      fontSize: 13,
+      color: theme.colors.gray900,
+      padding: 0,
+      fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+    },
+    deleteAction: {
       position: 'absolute',
       right: 0,
       top: 0,
       bottom: 0,
       width: DELETE_WIDTH,
-      backgroundColor: theme.colors.danger,
-      borderRadius: BorderRadius.sm,
       justifyContent: 'center',
       alignItems: 'center',
     },
-    deleteTouch: {
-      width: DELETE_WIDTH,
+    deleteButton: {
+      backgroundColor: theme.colors.danger,
+      width: '100%',
       height: '100%',
       justifyContent: 'center',
       alignItems: 'center',
-    },
-    header: {},
-    timeRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: Spacing.xs,
-    },
-    timeBlock: { flex: 1 },
-    arrow: { marginHorizontal: Spacing.xs },
-    durationBlock: {
-      alignItems: 'flex-end',
-    },
-    timeValue: {
-      fontVariant: ['tabular-nums'],
-    },
-    noteTouch: {
-      paddingTop: Spacing.xs,
-      minHeight: Layout.minTouchTarget / 2,
-    },
-    noteInput: {
-      marginTop: Spacing.xs,
-      padding: Spacing.sm,
-      borderWidth: 1,
-      borderRadius: BorderRadius.xs,
-      fontSize: 13,
+      borderRadius: BorderRadius.sm,
     },
   });
 }

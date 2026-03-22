@@ -10,7 +10,6 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +17,7 @@ import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { useSettingsStore } from '@store/settingsStore';
 import { Spacing, BorderRadius } from '@theme/spacing';
+import { TAX_CONFIG } from '../../../config/taxRates';
 import type { Theme } from '@theme/index';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@navigation/types';
@@ -125,7 +125,9 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }
                 color={theme.colors.gray600}
                 style={styles.body}
               >
-                {t(slide.bodyKey)}
+                {slide.bodyKey === 'onboarding.step3_body' 
+                  ? t(slide.bodyKey, { limit: TAX_CONFIG.miniJobLimit }) 
+                  : t(slide.bodyKey)}
               </Typography>
             </View>
           </View>
@@ -183,16 +185,6 @@ export const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ navigation }
     </View>
   );
 };
-
-// ✓ SELF-TEST: OnboardingScreen
-// □ 3 slides render with correct i18n keys (step1_title, step2_title, step3_title)?
-// □ slideX animation moves horizontally by SCREEN_WIDTH per step?
-// □ Progress dots update — active dot is wider (24px) and primary-colored?
-// □ Skip button appears on slides 1-2 but NOT on slide 3?
-// □ "Los geht's" CTA appears only on slide 3?
-// □ handleComplete calls updateSettings({ onboardingCompleted: true })?
-// □ navigation.replace('MainTabs') navigates after completion?
-// □ All strings use t() — no hardcoded text?
 
 function makeStyles(theme: Theme, insets: { top: number; bottom: number }) {
   return StyleSheet.create({
