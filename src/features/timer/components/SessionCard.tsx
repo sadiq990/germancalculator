@@ -41,7 +41,7 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   onUpdateNote,
   onEdit,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
   const [isEditingNote, setIsEditingNote] = useState(false);
@@ -52,6 +52,11 @@ export const SessionCard: React.FC<SessionCardProps> = ({
   // Slide-in entry animation
   const slideAnim = useRef(new Animated.Value(50)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  // Bug #6 Fix: Sync local state when prop changes
+  useEffect(() => {
+    setNoteText(session.note ?? '');
+  }, [session.note]);
 
   useEffect(() => {
     Animated.parallel([
@@ -250,14 +255,6 @@ export const SessionCard: React.FC<SessionCardProps> = ({
     </Animated.View>
   );
 };
-
-// ✓ SELF-TEST: SessionCard
-// □ Slide-in animation: translateY 50→0 + opacity 0→1 on mount?
-// □ Swipe-to-delete with PanResponder reveals delete button?
-// □ Delete confirmation Alert uses t() for all strings?
-// □ Beginn/Ende/Dauer labels use t('pdf.col_start'), t('pdf.col_end'), t('pdf.col_duration')?
-// □ Note placeholder uses t('home.note_placeholder')?
-// □ No hardcoded German strings remaining?
 
 function makeStyles(theme: Theme) {
   return StyleSheet.create({

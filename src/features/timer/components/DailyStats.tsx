@@ -11,6 +11,7 @@ import { Spacing, BorderRadius } from '@theme/spacing';
 import { formatMinutesAsHHMM } from '@shared/utils/timeUtils';
 import type { LegalWarning } from '@shared/utils/validationUtils';
 import type { Theme } from '@theme/index';
+import { TAX_CONFIG } from '../../../config/taxRates';
 
 interface DailyStatsProps {
   todayMinutes: number;
@@ -97,7 +98,7 @@ function getWarningStyle(
       };
     case 'minijob_approaching':
       return {
-        label: 'Du näherst dich dem monatlichen Minijob-Limit (520 €/Jahr).',
+        label: `Du näherst dich dem monatlichen Minijob-Limit (${TAX_CONFIG.miniJobLimit} €).`,
         bgColor: theme.colors.warningLight,
         textColor: theme.colors.warning,
       };

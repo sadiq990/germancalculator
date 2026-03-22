@@ -4,6 +4,7 @@
 // ══════════════════════════════════════════════════
 
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useSettingsStore } from '@store/settingsStore';
@@ -24,6 +25,7 @@ export function useSettings(): UseSettingsReturn {
   const [isExporting, setIsExporting] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation();
 
   const { resetSettings } = useSettingsStore();
   const { loadSessions } = useTimerStore();
@@ -45,13 +47,13 @@ export function useSettings(): UseSettingsReturn {
 
       await Sharing.shareAsync(uri, {
         mimeType: 'application/json',
-        dialogTitle: 'Datensicherung exportieren',
+        dialogTitle: t('settings.export_json'),
       });
 
       analyticsService.track({ name: analyticsService.Events.BACKUP_EXPORTED });
-      toast.success('Backup exportiert');
+      toast.success(t('settings.data_exported'));
     } catch {
-      toast.error('Backup konnte nicht exportiert werden');
+      toast.error(t('errors.generic'));
     } finally {
       setIsExporting(false);
     }
@@ -65,9 +67,9 @@ export function useSettings(): UseSettingsReturn {
       await workHoursRepository.clearAllSessions();
       await resetSettings();
       await loadSessions(); // Refresh store
-      toast.success('Alle Daten gelöscht');
+      toast.success(t('settings.data_cleared'));
     } catch {
-      toast.error('Daten konnten nicht gelöscht werden');
+      toast.error(t('errors.generic'));
     } finally {
       setIsClearing(false);
     }

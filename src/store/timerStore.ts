@@ -102,7 +102,7 @@ export const useTimerStore = create<TimerStore>()(
       if (activeSession === null) return;
 
       const now = Date.now();
-      const durationMs = now - activeSession.startTime;
+      const durationMs = now - activeSession.startTime - activeSession.totalPausedMs;
       const durationMinutes = Math.floor(durationMs / 60000);
 
       // Discard if < 1 minute (accidental tap)
@@ -442,16 +442,25 @@ export const useTimerStore = create<TimerStore>()(
     },
 
     checkSessionOverlap: (startTime: number, endTime: number, excludeId?: string) => {
-      const { sessions } = get();
-      return (
-        sessions.find((s) => {
-          if (s.id === excludeId) return false;
-          if (s.endTime === null) return false;
-          const sEnd = s.endTime;
-          // Check if ranges overlap
-          return startTime < sEnd && endTime > s.startTime;
-        }) ?? null
-      );
+      const { sessions, activeSession } = get();
+      
+      // 1. Check completed sessions
+      const overlapping = sessions.find((s) => {
+        if (s.id === excludeId) return false;
+        if (s.endTime === null) return false;
+        return startTime < s.endTime && endTime > s.startTime;
+      });
+      if (overlapping) return overlapping;
+
+      // 2. Check active session (Bug #3 Fix)
+      if (activeSession && activeSession.id !== excludeId) {
+        const effectiveEnd = activeSession.endTime ?? Date.now();
+        if (startTime < effectiveEnd && endTime > activeSession.startTime) {
+          return activeSession;
+        }
+      }
+
+      return null;
     },
   })),
 );

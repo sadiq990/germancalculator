@@ -36,7 +36,7 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
   visible,
   onClose,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const theme = useColorScheme();
   const updateSession = useTimerStore((s) => s.updateSession);
   const deleteSession = useTimerStore((s) => s.deleteSession);
@@ -79,13 +79,13 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
         return;
       }
 
-      if (!startStr) return setError('Pflichtfeld (Startzeit)');
-      if (!endStr) return setError('Pflichtfeld (Endzeit)');
-      if (!dateStr) return setError('Pflichtfeld (Datum)');
+      if (!startStr) return setError(t('errors.missing_field_start', 'Pflichtfeld (Startzeit)'));
+      if (!endStr) return setError(t('errors.missing_field_end', 'Pflichtfeld (Endzeit)'));
+      if (!dateStr) return setError(t('errors.missing_field_date', 'Pflichtfeld (Datum)'));
 
       const parsedDate = parse(dateStr, 'dd.MM.yyyy', new Date());
       if (!isValid(parsedDate)) {
-        setError('Ungültiges Datum');
+        setError(t('errors.invalid_date', 'Ungültiges Datum'));
         return;
       }
 
@@ -93,7 +93,7 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
       const parsedEnd = parse(endStr, 'HH:mm', parsedDate);
 
       if (!isValid(parsedStart) || !isValid(parsedEnd)) {
-        setError('Ungültige Zeit (HH:mm formati)');
+        setError(t('errors.invalid_time', 'Ungültige Zeit (HH:mm formati)'));
         return;
       }
 
@@ -112,7 +112,7 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
           setError(msg);
         }
       } else {
-        setError('Unbekannter Fehler');
+        setError(t('errors.generic', 'Unbekannter Fehler'));
       }
     }
   }, [session, isActive, dateStr, startStr, endStr, note, updateSession, onClose, t]);
@@ -121,9 +121,9 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
     if (!session) return;
     Alert.alert(
       t('edit_session.delete'),
-      'Bist du sicher, dass du diesen Eintrag löschen möchtest?',
+      t('edit_session.delete_confirm', 'Bist du sicher, dass du diesen Eintrag löschen möchtest?'),
       [
-        { text: 'Abbrechen', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
           text: t('edit_session.delete'),
           style: 'destructive',

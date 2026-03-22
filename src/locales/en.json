@@ -49,7 +49,7 @@
     "overwork_weekly_title": "Weekly limit reached",
     "overwork_weekly_message": "Warning: Over 48h/week (§3 ArbZG)",
     "overwork_minijob_title": "Minijob limit",
-    "overwork_minijob_message": "You're approaching the monthly Minijob limit (€520/year).",
+    "overwork_minijob_message": "You're approaching the monthly Minijob limit ({{limit}} €).",
     "pause_reminder": "Did you take a break? German labor law requires breaks.",
     "restore_session_title": "Still working?",
     "restore_session_message": "It looks like you have an active shift. Would you like to continue it?",
@@ -202,9 +202,15 @@
     "step2_title": "Timesheet in seconds",
     "step2_body": "At the end of the month, export a legally-compliant timesheet — for the tax office, your accountant, or your employer.",
     "step3_title": "Minijob limit in sight",
-    "step3_body": "The app warns you automatically when you're approaching the 520-hour limit. No more stress.",
+    "step3_body": "The app warns you automatically when you're approaching the {{limit}} € limit. No more stress.",
     "lets_go": "Let's go",
-    "dismiss": "Skip"
+    "dismiss": "Skip",
+    "tip_step1_title": "Track your time",
+    "tip_step1_body": "Tap START when you begin working",
+    "tip_step2_title": "End your shift",
+    "tip_step2_body": "Tap STOP when you finish",
+    "tip_step3_title": "Export timesheet",
+    "tip_step3_body": "Export your timesheet as a PDF at the end of the month"
   },
   "paywall": {
     "title": "Stundenrechner Pro",
@@ -231,6 +237,8 @@
   "accessibility": {
     "timer_start": "Start shift",
     "timer_stop": "Stop shift",
+    "timer_start_hint": "Starts a new shift or resumes",
+    "timer_stop_hint": "Ends the current shift and saves the time",
     "timer_display": "Elapsed time: {{time}}",
     "session_card": "Shift on {{date}}, {{duration}}",
     "delete_session": "Delete shift",

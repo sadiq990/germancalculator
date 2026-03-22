@@ -49,7 +49,7 @@
     "overwork_weekly_title": "Wochengrenze erreicht",
     "overwork_weekly_message": "Achtung: Über 48h/Woche (§3 ArbZG)",
     "overwork_minijob_title": "Minijob-Limit",
-    "overwork_minijob_message": "Du näherst dich dem monatlichen Minijob-Limit (520 €/Jahr).",
+    "overwork_minijob_message": "Du näherst dich dem monatlichen Minijob-Limit ({{limit}} €).",
     "pause_reminder": "Hast du eine Pause gemacht? Deutsche Arbeitsgesetze schreiben Pausen vor.",
     "restore_session_title": "Läufst du noch?",
     "restore_session_message": "Es scheint, als hättest du eine laufende Schicht. Möchtest du sie fortsetzen?",
@@ -202,7 +202,7 @@
     "step2_title": "Stundenzettel in Sekunden",
     "step2_body": "Am Monatsende exportierst du einen rechtssicheren Stundennachweis — für Finanzamt, Steuerberater oder deinen Arbeitgeber.",
     "step3_title": "Minijob-Grenze im Blick",
-    "step3_body": "Die App warnt dich automatisch, wenn du dich der 520-Stunden-Grenze näherst. Kein Stress mehr.",
+    "step3_body": "Die App warnt dich automatisch, wenn du dich der {{limit}} €-Grenze näherst. Kein Stress mehr.",
     "lets_go": "Los geht's",
     "dismiss": "Überspringen"
   },
@@ -231,6 +231,8 @@
   "accessibility": {
     "timer_start": "Schicht starten",
     "timer_stop": "Schicht stoppen",
+    "timer_start_hint": "Startet eine neue Schicht oder setzt fort",
+    "timer_stop_hint": "Beendet die aktuelle Schicht und speichert die Zeit",
     "timer_display": "Vergangene Zeit: {{time}}",
     "session_card": "Schicht vom {{date}}, {{duration}}",
     "delete_session": "Schicht löschen",

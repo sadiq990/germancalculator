@@ -3,7 +3,7 @@
 // PURPOSE: Repository for UserSettings and Employers — uses SecureStore for sensitive data
 // ══════════════════════════════════════════════════
 
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserSettings, Employer } from '@core/types/models';
 import { DEFAULT_SETTINGS, DEFAULT_EMPLOYER } from '@core/types/models';
 import { STORAGE_KEYS } from './storageKeys';
@@ -28,7 +28,7 @@ function isValidEmployer(value: unknown): value is Employer {
 export const settingsRepository = {
   async getSettings(): Promise<UserSettings> {
     try {
-      const raw = await SecureStore.getItemAsync(STORAGE_KEYS.SETTINGS);
+      const raw = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
       if (raw === null) return { ...DEFAULT_SETTINGS };
 
       const parsed: unknown = JSON.parse(raw);
@@ -42,7 +42,7 @@ export const settingsRepository = {
   },
 
   async saveSettings(settings: UserSettings): Promise<void> {
-    await SecureStore.setItemAsync(
+    await AsyncStorage.setItem(
       STORAGE_KEYS.SETTINGS,
       JSON.stringify(settings),
     );
@@ -57,7 +57,7 @@ export const settingsRepository = {
 
   async getEmployers(): Promise<Employer[]> {
     try {
-      const raw = await SecureStore.getItemAsync(STORAGE_KEYS.EMPLOYERS);
+      const raw = await AsyncStorage.getItem(STORAGE_KEYS.EMPLOYERS);
       if (raw === null) return [{ ...DEFAULT_EMPLOYER, createdAt: Date.now() }];
 
       const parsed: unknown = JSON.parse(raw);
@@ -73,7 +73,7 @@ export const settingsRepository = {
   },
 
   async saveEmployers(employers: Employer[]): Promise<void> {
-    await SecureStore.setItemAsync(
+    await AsyncStorage.setItem(
       STORAGE_KEYS.EMPLOYERS,
       JSON.stringify(employers),
     );
@@ -108,8 +108,8 @@ export const settingsRepository = {
   },
 
   async clearAll(): Promise<void> {
-    await SecureStore.deleteItemAsync(STORAGE_KEYS.SETTINGS);
-    await SecureStore.deleteItemAsync(STORAGE_KEYS.EMPLOYERS);
+    await AsyncStorage.removeItem(STORAGE_KEYS.SETTINGS);
+    await AsyncStorage.removeItem(STORAGE_KEYS.EMPLOYERS);
   },
 
   async resetToDefaults(): Promise<UserSettings> {

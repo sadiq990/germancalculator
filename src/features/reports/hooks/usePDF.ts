@@ -4,6 +4,7 @@
 // ══════════════════════════════════════════════════
 
 import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSettingsStore } from '@store/settingsStore';
 import { pdfService } from '@core/services/pdfService';
 import { workHoursRepository } from '@core/storage/workHoursRepository';
@@ -20,6 +21,7 @@ export interface UsePDFReturn {
 export function usePDF(): UsePDFReturn {
   const [isGenerating, setIsGenerating] = useState(false);
   const [exportCount, setExportCount] = useState(0);
+  const { t } = useTranslation();
   const toast = useToast();
 
   const { settings, employers } = useSettingsStore();
@@ -29,16 +31,23 @@ export function usePDF(): UsePDFReturn {
       if (isGenerating) return;
       setIsGenerating(true);
 
+      let pdfResult;
       try {
-        const result = await pdfService.generateStundenzettel(
+        pdfResult = await pdfService.generateStundenzettel(
           sessions,
           settings,
           employers,
           filter,
           settings.isPro,
         );
+      } catch (err) {
+        toast.error(t('errors.pdf_generate_failed', 'PDF konnte nicht erstellt werden'));
+        setIsGenerating(false);
+        return;
+      }
 
-        await pdfService.sharePdf(result.uri);
+      try {
+        await pdfService.sharePdf(pdfResult.uri);
 
         const count = await workHoursRepository.incrementPdfExportCount();
         setExportCount(count);
@@ -48,14 +57,15 @@ export function usePDF(): UsePDFReturn {
           properties: { month: filter.month, year: filter.year, isPro: settings.isPro },
         });
 
-        toast.success('PDF erstellt');
+        toast.success(t('pdf.export_success', 'PDF erstellt'));
       } catch (err) {
-        toast.error('PDF konnte nicht erstellt werden');
+        // Sharing cancelled or failed, but PDF was created
+        toast.error(t('errors.pdf_share_failed', 'PDF konnte nicht geteilt werden'));
       } finally {
         setIsGenerating(false);
       }
     },
-    [isGenerating, settings, employers, toast],
+    [isGenerating, settings, employers, toast, t],
   );
 
   return { isGenerating, exportCount, generateAndShare };

@@ -5,7 +5,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@shared/hooks/useLanguage';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { formatElapsedTime } from '@shared/utils/timeUtils';
@@ -21,7 +21,7 @@ export const TimerDisplay: React.FC<TimerDisplayProps> = ({
   elapsedSeconds,
   isRunning,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
   const timeStr = formatElapsedTime(elapsedSeconds);

@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
+import { useTranslation } from 'react-i18next';
 import { Typography } from './Typography';
 import { Spacing, BorderRadius } from '@theme/spacing';
 import type { Theme } from '@theme/index';
@@ -38,7 +39,11 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   destructive = false,
 }) => {
   const theme = useColorScheme();
+  const { t } = useTranslation();
   const styles = makeStyles(theme);
+
+  const finalConfirmLabel = confirmLabel === 'Bestätigen' ? t('common.confirm') : confirmLabel;
+  const finalCancelLabel = cancelLabel === 'Abbrechen' ? t('common.cancel') : cancelLabel;
 
   return (
     <Modal
@@ -70,10 +75,10 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   onPress={onCancel}
                   style={[styles.action, styles.cancelAction]}
                   accessibilityRole="button"
-                  accessibilityLabel={cancelLabel}
+                  accessibilityLabel={finalCancelLabel}
                 >
                   <Typography variant="headline" color={theme.colors.primary}>
-                    {cancelLabel}
+                    {finalCancelLabel}
                   </Typography>
                 </TouchableOpacity>
                 <View style={styles.actionDivider} />
@@ -81,14 +86,14 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                   onPress={onConfirm}
                   style={[styles.action, styles.confirmAction]}
                   accessibilityRole="button"
-                  accessibilityLabel={confirmLabel}
+                  accessibilityLabel={finalConfirmLabel}
                 >
                   <Typography
                     variant="headline"
                     color={destructive ? theme.colors.danger : theme.colors.primary}
                     style={destructive ? styles.destructiveLabel : {}}
                   >
-                    {confirmLabel}
+                    {finalConfirmLabel}
                   </Typography>
                 </TouchableOpacity>
               </View>

@@ -33,6 +33,14 @@ function parseSessionsFromStorage(raw: string | null): WorkSession[] {
   }
 }
 
+let writeQueue: Promise<void> = Promise.resolve();
+
+async function enqueueWrite<T>(op: () => Promise<T>): Promise<T> {
+  const result = writeQueue.then(op);
+  writeQueue = result.then(() => {}).catch(() => {});
+  return result;
+}
+
 export const workHoursRepository = {
   async getAllSessions(): Promise<WorkSession[]> {
     const raw = await AsyncStorage.getItem(STORAGE_KEYS.SESSIONS);
@@ -40,22 +48,26 @@ export const workHoursRepository = {
   },
 
   async saveSession(session: WorkSession): Promise<void> {
-    const sessions = await workHoursRepository.getAllSessions();
-    const existingIndex = sessions.findIndex((s) => s.id === session.id);
-    if (existingIndex >= 0) {
-      sessions[existingIndex] = session;
-    } else {
-      sessions.push(session);
-    }
-    // Sort by startTime descending for consistent ordering
-    sessions.sort((a, b) => b.startTime - a.startTime);
-    await AsyncStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    return enqueueWrite(async () => {
+      const sessions = await workHoursRepository.getAllSessions();
+      const existingIndex = sessions.findIndex((s) => s.id === session.id);
+      if (existingIndex >= 0) {
+        sessions[existingIndex] = session;
+      } else {
+        sessions.push(session);
+      }
+      // Sort by startTime descending for consistent ordering
+      sessions.sort((a, b) => b.startTime - a.startTime);
+      await AsyncStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(sessions));
+    });
   },
 
   async deleteSession(id: string): Promise<void> {
-    const sessions = await workHoursRepository.getAllSessions();
-    const filtered = sessions.filter((s) => s.id !== id);
-    await AsyncStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(filtered));
+    return enqueueWrite(async () => {
+      const sessions = await workHoursRepository.getAllSessions();
+      const filtered = sessions.filter((s) => s.id !== id);
+      await AsyncStorage.setItem(STORAGE_KEYS.SESSIONS, JSON.stringify(filtered));
+    });
   },
 
   async getActiveSessionId(): Promise<string | null> {

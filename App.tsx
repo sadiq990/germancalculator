@@ -8,7 +8,6 @@ import { View, Animated, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import * as Notifications from 'expo-notifications';
 
 import { initI18n } from './src/locales/i18n';
 import { RootNavigator, navigationRef } from './src/navigation/RootNavigator';
@@ -29,36 +28,33 @@ function AppLoader() {
   const splashScale = useRef(new Animated.Value(0.85)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
 
-  const bootstrap = useCallback(async (): Promise<(() => void) | undefined> => {
+  const bootstrap = useCallback(async () => {
     try {
       // 1. Initialize i18n (reads stored locale from AsyncStorage)
       await initI18n();
 
       // 2. Load settings and sessions in parallel
       await Promise.all([loadSettings(), loadSessions()]);
-
-      // 3. Register notification response handler
-      const subscription = notificationService.addNotificationResponseListener(
-        (response) => {
-          const data = response.notification.request.content.data as
-            | Record<string, unknown>
-            | undefined;
-          if (data?.['action'] === 'open_timer') {
-            if (navigationRef.isReady()) {
-              navigationRef.navigate('MainTabs');
-            }
-          }
-        },
-      );
-
-      return () => notificationService.removeSubscription(subscription);
     } catch {
       // Even on bootstrap failure, render the app (graceful degradation)
-      return undefined;
     } finally {
       setReady(true);
     }
   }, [loadSettings, loadSessions]);
+
+  useEffect(() => {
+    // 3. Register notification response handler (Bug #4 Fix: move out of bootstrap)
+    const subscription = notificationService.addNotificationResponseListener(
+      (response) => {
+        const data = response.notification.request.content.data as Record<string, unknown> | undefined;
+        if (data?.['action'] === 'open_timer' && navigationRef.isReady()) {
+          navigationRef.navigate('MainTabs');
+        }
+      },
+    );
+
+    return () => notificationService.removeSubscription(subscription);
+  }, []);
 
   useEffect(() => {
     // Start splash animation immediately
@@ -76,9 +72,7 @@ function AppLoader() {
       }),
     ]).start();
 
-    let cleanup: (() => void) | undefined;
-    void bootstrap().then((fn) => {
-      cleanup = fn;
+    bootstrap().then(() => {
       // Fade in main content after bootstrap
       Animated.timing(contentOpacity, {
         toValue: 1,
@@ -86,7 +80,6 @@ function AppLoader() {
         useNativeDriver: true,
       }).start();
     });
-    return () => cleanup?.();
   }, [bootstrap, splashOpacity, splashScale, contentOpacity]);
 
   if (!ready) {

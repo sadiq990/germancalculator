@@ -32,7 +32,7 @@ export const ManualEntrySheet: React.FC<ManualEntrySheetProps> = ({
   visible,
   onClose,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const theme = useColorScheme();
   const addManualSession = useTimerStore((s) => s.addManualSession);
 

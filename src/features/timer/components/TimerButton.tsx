@@ -11,7 +11,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '@shared/hooks/useLanguage';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { BorderRadius, Layout, Spacing } from '@theme/spacing';
@@ -36,7 +36,7 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
   onPause,
   onResume,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useLanguage();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
 
@@ -124,8 +124,8 @@ export const TimerButton: React.FC<TimerButtonProps> = ({
       : t('accessibility.timer_stop');
       
   const a11yHint = isRunning && !isPaused
-    ? 'Beendet die aktuelle Schicht und speichert die Zeit'
-    : 'Startet eine neue Schicht oder setzt fort';
+    ? t('accessibility.timer_stop_hint')
+    : t('accessibility.timer_start_hint');
 
   return (
     <Animated.View

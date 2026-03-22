@@ -231,6 +231,8 @@
   "accessibility": {
     "timer_start": "Démarrer le shift",
     "timer_stop": "Arrêter le shift",
+    "timer_start_hint": "Démarre un nouveau shift ou reprend",
+    "timer_stop_hint": "Termine le shift actuel et enregistre l'heure",
     "timer_display": "Temps écoulé: {{time}}",
     "session_card": "Shift du {{date}}, {{duration}}",
     "delete_session": "Supprimer le shift",

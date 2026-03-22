@@ -5,6 +5,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { View, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { useLanguage } from '@shared/hooks/useLanguage';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Card } from '@shared/components/Card';
@@ -17,23 +18,7 @@ interface OnboardingStep {
   body: string;
 }
 
-const STEPS: OnboardingStep[] = [
-  {
-    emoji: '▶',
-    title: 'Arbeitszeit erfassen',
-    body: 'Tippe STARTEN wenn du anfängst zu arbeiten',
-  },
-  {
-    emoji: '⏹',
-    title: 'Schicht beenden',
-    body: 'Tippe STOPPEN wenn du fertig bist',
-  },
-  {
-    emoji: '📄',
-    title: 'Stundenzettel exportieren',
-    body: 'Exportiere deinen Stundenzettel am Monatsende als PDF',
-  },
-];
+
 
 interface OnboardingTipProps {
   onComplete: () => void;
@@ -41,8 +26,27 @@ interface OnboardingTipProps {
 
 export const OnboardingTip: React.FC<OnboardingTipProps> = ({ onComplete }) => {
   const theme = useColorScheme();
+  const { t } = useLanguage();
   const styles = makeStyles(theme);
   const [step, setStep] = useState(0);
+
+  const STEPS: OnboardingStep[] = [
+    {
+      emoji: '▶',
+      title: t('onboarding.tip_step1_title', 'Arbeitszeit erfassen'),
+      body: t('onboarding.tip_step1_body', 'Tippe STARTEN wenn du anfängst zu arbeiten'),
+    },
+    {
+      emoji: '⏹',
+      title: t('onboarding.tip_step2_title', 'Schicht beenden'),
+      body: t('onboarding.tip_step2_body', 'Tippe STOPPEN wenn du fertig bist'),
+    },
+    {
+      emoji: '📄',
+      title: t('onboarding.tip_step3_title', 'Stundenzettel exportieren'),
+      body: t('onboarding.tip_step3_body', 'Exportiere deinen Stundenzettel am Monatsende als PDF'),
+    },
+  ];
   const opacity = useRef(new Animated.Value(1)).current;
 
   const currentStep = STEPS[step];
@@ -99,10 +103,10 @@ export const OnboardingTip: React.FC<OnboardingTipProps> = ({ onComplete }) => {
               onPress={handleNext}
               style={styles.nextButton}
               accessibilityRole="button"
-              accessibilityLabel={step < STEPS.length - 1 ? 'Weiter' : 'Alles klar!'}
+              accessibilityLabel={step < STEPS.length - 1 ? t('common.next') : t('common.done', 'Alles klar!')}
             >
               <Typography variant="subhead" color={theme.colors.primary}>
-                {step < STEPS.length - 1 ? 'Weiter →' : 'Alles klar!'}
+                {step < STEPS.length - 1 ? `${t('common.next')} →` : t('common.done', 'Alles klar!')}
               </Typography>
             </TouchableOpacity>
           </View>

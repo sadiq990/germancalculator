@@ -5,6 +5,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { View, TouchableOpacity, TextInput, StyleSheet, Alert } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Button } from '@shared/components/Button';
@@ -30,6 +31,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
   onDelete,
 }) => {
   const theme = useColorScheme();
+  const { t } = useTranslation();
   const styles = makeStyles(theme);
 
   const [isAdding, setIsAdding] = useState(false);
@@ -54,11 +56,11 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
     (employer: Employer) => {
       if (employer.isDefault) return;
       Alert.alert(
-        `"${employer.name}" löschen?`,
-        'Dieser Arbeitgeber wird gelöscht.',
+        `${employer.name} ${t('common.delete')}?`,
+        '',
         [
-          { text: 'Abbrechen', style: 'cancel' },
-          { text: 'Löschen', style: 'destructive', onPress: () => onDelete(employer.id) },
+          { text: t('common.cancel'), style: 'cancel' },
+          { text: t('common.delete'), style: 'destructive', onPress: () => onDelete(employer.id) },
         ],
       );
     },
@@ -74,7 +76,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
             <Typography variant="body">{emp.name}</Typography>
             {emp.isDefault && (
               <Typography variant="caption1" color={theme.colors.gray400}>
-                Standard
+                {t('common.default', 'Standard')}
               </Typography>
             )}
           </View>
@@ -82,10 +84,10 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
             <TouchableOpacity
               onPress={() => onSetDefault(emp.id)}
               style={styles.actionBtn}
-              accessibilityLabel="Als Standard setzen"
+              accessibilityLabel={t('settings.employer_default')}
             >
               <Typography variant="caption1" color={theme.colors.primary}>
-                Standard
+                {t('common.default', 'Standard')}
               </Typography>
             </TouchableOpacity>
           )}
@@ -93,10 +95,10 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
             <TouchableOpacity
               onPress={() => handleDeleteConfirm(emp)}
               style={styles.actionBtn}
-              accessibilityLabel="Arbeitgeber löschen"
+              accessibilityLabel={`${emp.name} ${t('common.delete')}`}
             >
               <Typography variant="caption1" color={theme.colors.danger}>
-                Löschen
+                {t('common.delete')}
               </Typography>
             </TouchableOpacity>
           )}
@@ -105,7 +107,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
 
       {!isAdding ? (
         <Button
-          label="+ Arbeitgeber hinzufügen"
+          label={`+ ${t('settings.add_employer')}`}
           onPress={() => setIsAdding(true)}
           variant={isPro ? 'ghost' : 'secondary'}
           fullWidth
@@ -116,7 +118,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
           <TextInput
             value={newName}
             onChangeText={setNewName}
-            placeholder="Arbeitgebername"
+            placeholder={t('settings.employer_name_placeholder')}
             placeholderTextColor={theme.colors.gray400}
             style={[styles.input, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
             autoFocus
@@ -125,7 +127,7 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
           <TextInput
             value={newRate}
             onChangeText={setNewRate}
-            placeholder="Stundensatz (optional)"
+            placeholder={`${t('settings.hourly_rate')} (optional)`}
             placeholderTextColor={theme.colors.gray400}
             style={[styles.input, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
             keyboardType="decimal-pad"
@@ -146,8 +148,8 @@ export const EmployerManager: React.FC<EmployerManagerProps> = ({
             ))}
           </View>
           <View style={styles.addActions}>
-            <Button label="Abbrechen" onPress={() => setIsAdding(false)} variant="secondary" />
-            <Button label="Hinzufügen" onPress={handleAdd} variant="primary" disabled={newName.trim().length === 0} />
+            <Button label={t('common.cancel')} onPress={() => setIsAdding(false)} variant="secondary" />
+            <Button label={t('common.add', 'Hinzufügen')} onPress={handleAdd} variant="primary" disabled={newName.trim().length === 0} />
           </View>
         </Card>
       )}

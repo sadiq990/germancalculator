@@ -231,6 +231,8 @@
   "accessibility": {
     "timer_start": "Vardiyayı başlat",
     "timer_stop": "Vardiyayı durdur",
+    "timer_start_hint": "Yeni bir vardiya başlatır veya devam ettir",
+    "timer_stop_hint": "Geçerli vardiyayı sonlandırır ve saati kaydeder",
     "timer_display": "Geçen süre: {{time}}",
     "session_card": "{{date}} tarihli vardiya, {{duration}}",
     "delete_session": "Vardiyayı sil",

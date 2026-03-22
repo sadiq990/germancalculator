@@ -90,7 +90,7 @@ export const SettingsScreen: React.FC = () => {
     await loadSettings();
   }, [clearAllData, loadSettings]);
 
-  const themeLabel = THEME_OPTIONS.find((t) => t.value === settings.theme)?.label ?? 'Automatisch';
+  const themeLabel = THEME_OPTIONS.find((opt) => opt.value === settings.theme)?.label ?? t('settings.theme_system');
 
   const appVersion =
     Constants.expoConfig?.version ?? '1.0.0';

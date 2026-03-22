@@ -4,13 +4,14 @@
 // ══════════════════════════════════════════════════
 
 import type { WorkSession } from '@core/types/models';
+import { TAX_CONFIG } from '../../config/taxRates';
 
 // German Arbeitszeitgesetz limits
 export const LEGAL_LIMITS = {
   MAX_DAILY_HOURS: 10,
   MAX_WEEKLY_HOURS: 48,
   MAX_SESSION_HOURS: 24,
-  MINIJOB_MONTHLY_HOURS: 43, // ~520€/yr at minimum wage
+  MINIJOB_MONTHLY_HOURS: Math.floor(TAX_CONFIG.miniJobLimit / TAX_CONFIG.mindestlohn),
   NOTE_MAX_CHARS: 140,
   DISPLAY_NAME_MAX_CHARS: 60,
   EMPLOYER_NAME_MAX_CHARS: 80,
@@ -66,10 +67,11 @@ export function findOverlappingSession(
 ): WorkSession | null {
   for (const session of sessions) {
     if (session.id === excludeId) continue;
-    if (session.endTime === null) continue;
+    
+    const sEnd = session.endTime ?? Date.now();
 
     // Overlap: new starts before existing ends AND new ends after existing starts
-    if (startTime < session.endTime && endTime > session.startTime) {
+    if (startTime < sEnd && endTime > session.startTime) {
       return session;
     }
   }
@@ -84,7 +86,7 @@ export function hasOverlap(
   newEnd: number,
   sessions: WorkSession[],
   excludeId?: string,
-): boolean {
+ ): boolean {
   return findOverlappingSession(newStart, newEnd, sessions, excludeId) !== null;
 }
 
