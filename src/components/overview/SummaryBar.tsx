@@ -1,25 +1,60 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Clock, TrendingUp, PiggyBank } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
+import { useEntryStore } from '../../store/useEntryStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { formatMinutesAsHHMM } from '../../utils/timeUtils';
+import { formatCurrency } from '../../utils/taxUtils';
 
 export const SummaryBar: React.FC = () => {
   const { t } = useTranslation();
+  const entries = useEntryStore(state => state.entries);
+  const hourlyRate = useSettingsStore(state => state.hourlyRate);
+
+  const totalMinutes = entries.reduce((acc, entry) => acc + entry.duration, 0);
+  const totalEarnings = (totalMinutes / 60) * hourlyRate;
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-dark-surface border-t border-neutral-200 dark:border-dark-border p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-20">
-      <div className="flex justify-between items-center max-w-3xl mx-auto text-sm">
-        <div className="flex flex-col items-center">
-          <span className="text-neutral-500 font-medium text-xs md:text-sm">Σ Zeit</span>
-          <span className="font-bold text-base md:text-lg text-neutral-900 dark:text-dark-text">0.00 h</span>
+    <div className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-72 md:right-8 z-30">
+      <motion.div 
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        className="glass-heavy rounded-ios-xl shadow-2xl border border-white/20 dark:border-white/5 p-4 flex items-center justify-between"
+      >
+        <div className="flex items-center gap-6 px-2">
+          <StatItem 
+            icon={<Clock size={16} className="text-ios-blue" />} 
+            label={t('overview.total_time', 'Total Time')}
+            value={formatMinutesAsHHMM(totalMinutes)}
+          />
+          <div className="w-[1px] h-8 bg-neutral-200 dark:bg-ios-dark-4 hidden sm:block" />
+          <StatItem 
+            icon={<TrendingUp size={16} className="text-ios-green" />} 
+            label={t('overview.earnings', 'Earnings')}
+            value={formatCurrency(totalEarnings)}
+          />
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-neutral-500 font-medium text-xs md:text-sm">Σ Verdienst</span>
-          <span className="font-bold text-base md:text-lg text-success">0,00 €</span>
+
+        <div className="hidden sm:flex items-center gap-3 bg-ios-blue/10 px-4 py-2 rounded-full border border-ios-blue/20">
+           <PiggyBank size={18} className="text-ios-blue" />
+           <span className="text-xs font-bold text-ios-blue uppercase tracking-tight">Financial Summary</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-neutral-500 font-medium text-xs md:text-sm">Σ {t('overtime.balance')}</span>
-          <span className="font-bold text-base md:text-lg text-warning">0.00 h</span>
-        </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
+
+const StatItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string }) => (
+  <div className="flex flex-col">
+    <div className="flex items-center gap-1.5 opacity-60">
+      {icon}
+      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-ios-gray-1">
+        {label}
+      </span>
+    </div>
+    <span className="text-lg font-mono font-bold dark:text-white leading-tight">
+      {value}
+    </span>
+  </div>
+);
