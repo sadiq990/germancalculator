@@ -1,0 +1,8 @@
+﻿fcadab1 HEAD@{0}: commit: Centralize tax configuration and fix SessionCard build errors
+fd678ca HEAD@{1}: commit: docs: Update README with i18n fixes and useLanguage hook documentation
+652bfe1 HEAD@{2}: commit: Fix: Ensure timer button text updates on language change with useLanguage hook
+b2b8013 HEAD@{3}: commit: fix: resolve type safety and error handling issues per final code audit
+9ef74bc HEAD@{4}: commit: fix: resolve web button responsiveness and complete localization
+8fb78e1 HEAD@{5}: commit: feat: implement pause/resume, manual entry, session editing, and onboarding with UI animations
+06e5bd8 HEAD@{6}: commit: initial_commit
+0793eb5 HEAD@{7}: commit (initial): Initial commit: Germany Calculator app setup

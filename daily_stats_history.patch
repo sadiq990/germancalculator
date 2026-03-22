@@ -1,0 +1,257 @@
+﻿commit fcadab104d0dc8593090945d3b00d54a9bab3026
+Author: Developer <developer@example.com>
+Date:   Sun Mar 22 22:25:18 2026 +0400
+
+    Centralize tax configuration and fix SessionCard build errors
+
+diff --git a/src/features/timer/components/DailyStats.tsx b/src/features/timer/components/DailyStats.tsx
+index c34283b..20f5a77 100644
+--- a/src/features/timer/components/DailyStats.tsx
++++ b/src/features/timer/components/DailyStats.tsx
+@@ -5,6 +5,7 @@
+ 
+ import React from 'react';
+ import { View, StyleSheet, TouchableOpacity } from 'react-native';
++import { useTranslation } from 'react-i18next';
+ import { useColorScheme } from '@shared/hooks/useColorScheme';
+ import { Typography } from '@shared/components/Typography';
+ import { Spacing, BorderRadius } from '@theme/spacing';
+@@ -57,7 +58,8 @@ interface WarningBannerProps {
+ }
+ 
+ function WarningBanner({ warning, theme, onDismiss }: WarningBannerProps) {
+-  const { label, bgColor, textColor } = getWarningStyle(warning, theme);
++  const { t } = useTranslation();
++  const { label, bgColor, textColor } = getWarningStyle(warning, theme, t);
+ 
+   return (
+     <View style={[{ backgroundColor: bgColor, borderRadius: BorderRadius.sm, padding: Spacing.sm, marginTop: Spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+@@ -82,29 +84,30 @@ function WarningBanner({ warning, theme, onDismiss }: WarningBannerProps) {
+ function getWarningStyle(
+   warning: LegalWarning,
+   theme: Theme,
++  t: (key: string, options?: any) => string,
+ ): { label: string; bgColor: string; textColor: string } {
+   switch (warning.type) {
+     case 'daily_overwork':
+       return {
+-        label: 'Du hast heute mehr als 10 Stunden gearbeitet.',
++        label: t('home.overwork_daily_message'),
+         bgColor: theme.colors.dangerLight,
+         textColor: theme.colors.danger,
+       };
+     case 'weekly_overwork':
+       return {
+-        label: 'Achtung: ├£ber 48h/Woche (┬º3 ArbZG)',
++        label: t('home.overwork_weekly_message'),
+         bgColor: theme.colors.dangerLight,
+         textColor: theme.colors.danger,
+       };
+     case 'minijob_approaching':
+       return {
+-        label: `Du n├ñherst dich dem monatlichen Minijob-Limit (${TAX_CONFIG.miniJobLimit} Γé¼).`,
++        label: t('home.overwork_minijob_message', { limit: TAX_CONFIG.miniJobLimit }),
+         bgColor: theme.colors.warningLight,
+         textColor: theme.colors.warning,
+       };
+     case 'break_reminder':
+       return {
+-        label: 'Hast du eine Pause gemacht? Deutsche Arbeitsgesetze schreiben Pausen vor.',
++        label: t('home.pause_reminder'),
+         bgColor: theme.colors.warningLight,
+         textColor: theme.colors.warning,
+       };
+
+commit 652bfe197797514cfbf7b65d658fda5bd7659a17
+Author: Developer <developer@example.com>
+Date:   Sun Mar 22 22:14:26 2026 +0400
+
+    Fix: Ensure timer button text updates on language change with useLanguage hook
+    
+    - Create new useLanguage hook with explicit language change listener
+    - Update all timer components (TimerButton, TimerDisplay, SessionCard, OnboardingTip, ManualEntrySheet, EditSessionSheet) to use useLanguage for guaranteed re-renders
+    - Add accessibility hint translations for all supported languages (DE, EN, TR, FR)
+    - Fix hardcoded accessibility labels in EmployerManager to use i18n keys
+    - Ensure all text updates properly when user switches language
+    
+    Fixes: Language switching now works correctly - all button text and labels update across all screens
+
+diff --git a/src/features/timer/components/DailyStats.tsx b/src/features/timer/components/DailyStats.tsx
+index 597e083..c34283b 100644
+--- a/src/features/timer/components/DailyStats.tsx
++++ b/src/features/timer/components/DailyStats.tsx
+@@ -11,6 +11,7 @@ import { Spacing, BorderRadius } from '@theme/spacing';
+ import { formatMinutesAsHHMM } from '@shared/utils/timeUtils';
+ import type { LegalWarning } from '@shared/utils/validationUtils';
+ import type { Theme } from '@theme/index';
++import { TAX_CONFIG } from '../../../config/taxRates';
+ 
+ interface DailyStatsProps {
+   todayMinutes: number;
+@@ -97,7 +98,7 @@ function getWarningStyle(
+       };
+     case 'minijob_approaching':
+       return {
+-        label: 'Du n├ñherst dich dem monatlichen Minijob-Limit (520 Γé¼/Jahr).',
++        label: `Du n├ñherst dich dem monatlichen Minijob-Limit (${TAX_CONFIG.miniJobLimit} Γé¼).`,
+         bgColor: theme.colors.warningLight,
+         textColor: theme.colors.warning,
+       };
+
+commit 8fb78e109c40ba49b8ea1491f9935c4e908925f0
+Author: Developer <developer@example.com>
+Date:   Sun Mar 22 13:09:58 2026 +0400
+
+    feat: implement pause/resume, manual entry, session editing, and onboarding with UI animations
+
+diff --git a/src/features/timer/components/DailyStats.tsx b/src/features/timer/components/DailyStats.tsx
+index 2f59df5..597e083 100644
+--- a/src/features/timer/components/DailyStats.tsx
++++ b/src/features/timer/components/DailyStats.tsx
+@@ -42,7 +42,7 @@ export const DailyStats: React.FC<DailyStatsProps> = ({
+           key={warning.type}
+           warning={warning}
+           theme={theme}
+-          onDismiss={onDismissWarning}
++          {...(onDismissWarning !== undefined ? { onDismiss: onDismissWarning } : {})}
+         />
+       ))}
+     </View>
+
+commit 0793eb5aec622ef621a3a76c571a2fbfd51518a2
+Author: Developer <developer@example.com>
+Date:   Sun Mar 22 02:17:22 2026 +0400
+
+    Initial commit: Germany Calculator app setup
+
+diff --git a/src/features/timer/components/DailyStats.tsx b/src/features/timer/components/DailyStats.tsx
+new file mode 100644
+index 0000000..2f59df5
+--- /dev/null
++++ b/src/features/timer/components/DailyStats.tsx
+@@ -0,0 +1,125 @@
++// ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
++// FILE: src/features/timer/components/DailyStats.tsx
++// PURPOSE: Today's total hours and warning banners
++// ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
++
++import React from 'react';
++import { View, StyleSheet, TouchableOpacity } from 'react-native';
++import { useColorScheme } from '@shared/hooks/useColorScheme';
++import { Typography } from '@shared/components/Typography';
++import { Spacing, BorderRadius } from '@theme/spacing';
++import { formatMinutesAsHHMM } from '@shared/utils/timeUtils';
++import type { LegalWarning } from '@shared/utils/validationUtils';
++import type { Theme } from '@theme/index';
++
++interface DailyStatsProps {
++  todayMinutes: number;
++  warnings: LegalWarning[];
++  onDismissWarning?: (type: LegalWarning['type']) => void;
++}
++
++export const DailyStats: React.FC<DailyStatsProps> = ({
++  todayMinutes,
++  warnings,
++  onDismissWarning,
++}) => {
++  const theme = useColorScheme();
++  const styles = makeStyles(theme);
++
++  return (
++    <View style={styles.container}>
++      <View style={styles.statRow}>
++        <Typography variant="subhead" color={theme.colors.gray600}>
++          Heute gesamt
++        </Typography>
++        <Typography variant="headline" color={theme.colors.gray900}>
++          {formatMinutesAsHHMM(todayMinutes)}
++        </Typography>
++      </View>
++
++      {warnings.map((warning) => (
++        <WarningBanner
++          key={warning.type}
++          warning={warning}
++          theme={theme}
++          onDismiss={onDismissWarning}
++        />
++      ))}
++    </View>
++  );
++};
++
++interface WarningBannerProps {
++  warning: LegalWarning;
++  theme: Theme;
++  onDismiss?: (type: LegalWarning['type']) => void;
++}
++
++function WarningBanner({ warning, theme, onDismiss }: WarningBannerProps) {
++  const { label, bgColor, textColor } = getWarningStyle(warning, theme);
++
++  return (
++    <View style={[{ backgroundColor: bgColor, borderRadius: BorderRadius.sm, padding: Spacing.sm, marginTop: Spacing.sm, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
++      <Typography variant="footnote" color={textColor} style={{ flex: 1 }}>
++        {label}
++      </Typography>
++      {onDismiss !== undefined && (
++        <TouchableOpacity
++          onPress={() => onDismiss(warning.type)}
++          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
++          accessibilityLabel="Warnung schlie├ƒen"
++        >
++          <Typography variant="footnote" color={textColor}>
++            Γ£ò
++          </Typography>
++        </TouchableOpacity>
++      )}
++    </View>
++  );
++}
++
++function getWarningStyle(
++  warning: LegalWarning,
++  theme: Theme,
++): { label: string; bgColor: string; textColor: string } {
++  switch (warning.type) {
++    case 'daily_overwork':
++      return {
++        label: 'Du hast heute mehr als 10 Stunden gearbeitet.',
++        bgColor: theme.colors.dangerLight,
++        textColor: theme.colors.danger,
++      };
++    case 'weekly_overwork':
++      return {
++        label: 'Achtung: ├£ber 48h/Woche (┬º3 ArbZG)',
++        bgColor: theme.colors.dangerLight,
++        textColor: theme.colors.danger,
++      };
++    case 'minijob_approaching':
++      return {
++        label: 'Du n├ñherst dich dem monatlichen Minijob-Limit (520 Γé¼/Jahr).',
++        bgColor: theme.colors.warningLight,
++        textColor: theme.colors.warning,
++      };
++    case 'break_reminder':
++      return {
++        label: 'Hast du eine Pause gemacht? Deutsche Arbeitsgesetze schreiben Pausen vor.',
++        bgColor: theme.colors.warningLight,
++        textColor: theme.colors.warning,
++      };
++  }
++}
++
++function makeStyles(_theme: Theme) {
++  return StyleSheet.create({
++    container: {
++      marginBottom: Spacing.md,
++    },
++    statRow: {
++      flexDirection: 'row',
++      justifyContent: 'space-between',
++      alignItems: 'center',
++      paddingVertical: Spacing.sm,
++    },
++  });
++}

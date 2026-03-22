@@ -1,0 +1,65 @@
+﻿App.tsx(12,10): error TS2614: Module '"./src/locales/i18n"' has no exported member 'initI18n'. Did you mean to use 'import initI18n from "./src/locales/i18n"' instead?
+src/App.tsx(2,46): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/components/ai/AIChat.tsx(7,27): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/entries/EntryCard.tsx(16,21): error TS2322: Type '{ children: Element; hoverable: true; onClick: () => void; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+  Property 'onClick' does not exist on type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+src/components/entries/EntryForm.tsx(42,20): error TS18048: 'h1' is possibly 'undefined'.
+src/components/entries/EntryForm.tsx(42,30): error TS18048: 'm1' is possibly 'undefined'.
+src/components/entries/EntryForm.tsx(43,18): error TS18048: 'h2' is possibly 'undefined'.
+src/components/entries/EntryForm.tsx(43,28): error TS18048: 'm2' is possibly 'undefined'.
+src/components/entries/EntryList.tsx(6,22): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/entries/SondertagCard.tsx(9,11): error TS2322: Type '{ children: Element; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+  Property 'className' does not exist on type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+src/components/layout/AppLayout.tsx(2,24): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/components/layout/BottomNav.tsx(2,42): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/components/layout/BottomNav.tsx(4,67): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/layout/BottomNav.tsx(5,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/layout/Header.tsx(5,43): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/layout/Header.tsx(29,17): error TS2345: Argument of type '"de" | "en" | "fr" | "tr" | "it" | undefined' is not assignable to parameter of type '"de" | "en" | "fr" | "tr" | "system" | "it"'.
+  Type 'undefined' is not assignable to type '"de" | "en" | "fr" | "tr" | "system" | "it"'.
+src/components/layout/PageTransition.tsx(2,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/layout/SideNav.tsx(2,42): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/components/layout/SideNav.tsx(4,82): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/layout/SideNav.tsx(5,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/overview/OvertimeWidget.tsx(4,23): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/overview/OvertimeWidget.tsx(10,11): error TS2322: Type '{ children: Element[]; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+  Property 'className' does not exist on type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+src/components/tax/AITaxExplainer.tsx(3,21): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/tax/AITaxExplainer.tsx(16,80): error TS2345: Argument of type '{ taxProfile: TaxResult; }' is not assignable to parameter of type 'AIContext'.
+  Type '{ taxProfile: TaxResult; }' is missing the following properties from type 'AIContext': currentMonthEntries, sollStunden
+src/components/tax/TaxResultCard.tsx(13,11): error TS2322: Type '{ children: Element[]; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+  Property 'className' does not exist on type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+src/components/timer/ActiveEntry.tsx(4,41): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/timer/ActiveEntry.tsx(19,11): error TS2322: Type '{ children: Element[]; className: string; }' is not assignable to type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+  Property 'className' does not exist on type 'IntrinsicAttributes & CardProps & RefAttributes<HTMLDivElement>'.
+src/components/timer/TimerButton.tsx(2,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Button.tsx(2,41): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Button.tsx(3,25): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/ui/Card.tsx(2,41): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Card.tsx(11,3): error TS2339: Property 'className' does not exist on type 'CardProps'.
+src/components/ui/Modal.tsx(2,41): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Modal.tsx(3,19): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/ui/ProgressBar.tsx(2,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Tabs.tsx(2,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Toast.tsx(2,41): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Toast.tsx(3,51): error TS2307: Cannot find module 'lucide-react' or its corresponding type declarations.
+src/components/ui/Toggle.tsx(2,24): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/components/ui/Tooltip.tsx(2,41): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/features/settings/components/LanguagePicker.tsx(11,10): error TS2614: Module '"@locales/i18n"' has no exported member 'SUPPORTED_LOCALES'. Did you mean to use 'import SUPPORTED_LOCALES from "@locales/i18n"' instead?
+src/features/settings/components/LanguagePicker.tsx(36,31): error TS7006: Parameter 'locale' implicitly has an 'any' type.
+src/locales/i18n.ts(28,9): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/main.tsx(2,22): error TS7016: Could not find a declaration file for module 'react-dom/client'. 'C:/Users/user/Desktop/app projects/projects/germanycalculator/node_modules/react-dom/client.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/react-dom` if it exists or add a new declaration (.d.ts) file containing `declare module 'react-dom/client';`
+src/store/settingsStore.ts(14,10): error TS2614: Module '"@locales/i18n"' has no exported member 'changeLanguage'. Did you mean to use 'import changeLanguage from "@locales/i18n"' instead?
+src/utils/animationUtils.ts(1,26): error TS2307: Cannot find module 'framer-motion' or its corresponding type declarations.
+src/utils/dateUtils.ts(35,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/utils/storageUtils.ts(1,35): error TS2307: Cannot find module 'dexie' or its corresponding type declarations.
+src/utils/storageUtils.ts(16,10): error TS2339: Property 'version' does not exist on type 'AppDatabase'.
+src/utils/timeUtils.ts(4,10): error TS18048: 'hours' is possibly 'undefined'.
+src/utils/timeUtils.ts(4,19): error TS18048: 'minutes' is possibly 'undefined'.
+src/utils/timeUtils.ts(24,18): error TS18048: 'h1' is possibly 'undefined'.
+src/utils/timeUtils.ts(24,28): error TS18048: 'm1' is possibly 'undefined'.
+src/utils/timeUtils.ts(25,16): error TS18048: 'h2' is possibly 'undefined'.
+src/utils/timeUtils.ts(25,26): error TS18048: 'm2' is possibly 'undefined'.

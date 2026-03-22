@@ -1,0 +1,23 @@
+﻿App.tsx(12,10): error TS2614: Module '"./src/locales/i18n"' has no exported member 'initI18n'. Did you mean to use 'import initI18n from "./src/locales/i18n"' instead?
+App.tsx(15,34): error TS2307: Cannot find module './src/store/settingsStore' or its corresponding type declarations.
+App.tsx(23,42): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/layout/Header.tsx(29,17): error TS2345: Argument of type '"de" | "en" | "fr" | "tr" | "it" | undefined' is not assignable to parameter of type '"de" | "en" | "fr" | "tr" | "system" | "it"'.
+  Type 'undefined' is not assignable to type '"de" | "en" | "fr" | "tr" | "system" | "it"'.
+src/components/ui/Card.tsx(16,6): error TS2375: Type '{ children: ReactNode; id?: string | undefined; color?: string | undefined; slot?: string | undefined; title?: string | undefined; key?: Key | null | undefined; hidden?: boolean | undefined; ... 316 more ...; className: string; }' is not assignable to type 'Omit<HTMLMotionProps<"div">, "ref">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'whileHover' are incompatible.
+    Type 'TargetAndTransition | VariantLabels | undefined' is not assignable to type 'TargetAndTransition | VariantLabels'.
+      Type 'undefined' is not assignable to type 'TargetAndTransition | VariantLabels'.
+src/main.tsx(2,22): error TS7016: Could not find a declaration file for module 'react-dom/client'. 'C:/Users/user/Desktop/app projects/projects/germanycalculator/node_modules/react-dom/client.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/react-dom` if it exists or add a new declaration (.d.ts) file containing `declare module 'react-dom/client';`
+src/navigation/RootNavigator.tsx(13,34): error TS2307: Cannot find module '@store/settingsStore' or its corresponding type declarations.
+src/navigation/RootNavigator.tsx(15,28): error TS2307: Cannot find module '@features/timer/screens/HomeScreen' or its corresponding type declarations.
+src/navigation/RootNavigator.tsx(16,30): error TS2307: Cannot find module '@features/reports/screens/ReportScreen' or its corresponding type declarations.
+src/navigation/RootNavigator.tsx(17,32): error TS2307: Cannot find module '@features/settings/screens/SettingsScreen' or its corresponding type declarations.
+src/navigation/RootNavigator.tsx(18,34): error TS2307: Cannot find module '@features/onboarding/screens/OnboardingScreen' or its corresponding type declarations.
+src/navigation/RootNavigator.tsx(103,49): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/shared/hooks/useColorScheme.ts(7,34): error TS2307: Cannot find module '@store/settingsStore' or its corresponding type declarations.
+src/shared/hooks/useColorScheme.ts(13,45): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/index.ts(9,34): error TS2307: Cannot find module './settingsStore' or its corresponding type declarations.
+src/store/index.ts(10,36): error TS2307: Cannot find module './settingsStore' or its corresponding type declarations.
+src/utils/dateUtils.ts(35,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.

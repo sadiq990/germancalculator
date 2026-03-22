@@ -1,0 +1,122 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "back": "Indietro",
+    "close": "Chiudi",
+    "warning": "Avviso",
+    "error": "Errore",
+    "info": "Info",
+    "add": "Aggiungi",
+    "success": "Successo"
+  },
+  "nav": {
+    "timer": "Timer",
+    "entries": "Voci",
+    "overview": "Panoramica",
+    "tax": "Tasse",
+    "export": "Esporta",
+    "settings": "Impostazioni",
+    "ai": "Assistente AI"
+  },
+  "timer": {
+    "start": "INIZIA",
+    "stop": "FERMA",
+    "pause": "PAUSA",
+    "resume": "RIPRENDI",
+    "manual_entry": "Voce Manuale",
+    "active_shift": "Turno Attivo",
+    "today_total": "Oggi",
+    "no_running_timer": "Pronto",
+    "select_client": "Seleziona Cliente",
+    "add_note": "Aggiungi nota...",
+    "auto_break_applied": "Pausa auto ({minutes}m) detratta."
+  },
+  "entries": {
+    "add_entry": "Nuova Voce",
+    "edit_entry": "Modifica Voce",
+    "delete_confirm": "Vuoi davvero eliminare questa voce?",
+    "list_empty": "Nessuna voce per questo periodo.",
+    "filters": "Filtri",
+    "templates": "Modelli",
+    "note": "Nota",
+    "start_time": "Inizio",
+    "end_time": "Fine",
+    "date": "Data",
+    "duration": "Durata",
+    "client": "Cliente",
+    "project": "Progetto",
+    "task": "Compito",
+    "is_paid": "Pagato",
+    "is_invoiced": "Fatturato"
+  },
+  "sondertage": {
+    "urlaub": "Ferie",
+    "krankheit": "Malattia",
+    "feiertag": "Giorno Festivo",
+    "other": "Altro",
+    "add_sondertag": "Aggiungi Giorno Spec.",
+    "vacation_balance": "Ferie restanti: {days} giorni"
+  },
+  "overtime": {
+    "sollstunden": "Ore Obiettivo",
+    "iststunden": "Ore Effettive",
+    "balance": "Saldo Straordinario",
+    "abbau": "Riduzione Straord.",
+    "goal": "Obiettivo Guadagno"
+  },
+  "tax": {
+    "brutto": "Lordo",
+    "netto": "Netto",
+    "steuerklasse": "Classe Fiscale",
+    "kirchensteuer": "Tassa Chiesa",
+    "bundesland": "Stato (Land)",
+    "kinder": "Figli",
+    "minijob": "Mini-Job",
+    "midijob": "Midi-Job",
+    "calculate": "Calcola",
+    "lohnsteuer": "Tassa Reddito",
+    "soli": "Sovratassa Solida",
+    "kv": "Assicurazione Salute",
+    "pv": "Assicurazione Cure",
+    "rv": "Assicurazione Pensioni",
+    "av": "Assicurazione Disocc.",
+    "total_deductions": "Totale Trattenute",
+    "ai_explanation_btn": "Spiegami (AI)"
+  },
+  "export": {
+    "pdf": "Esporta PDF",
+    "csv": "Esporta CSV",
+    "download": "Scarica",
+    "preview": "Anteprima",
+    "columns": "Colonne",
+    "period": "Periodo",
+    "include_header": "Includi Intestazione",
+    "include_sondertage": "Includi Giorni Spec."
+  },
+  "settings": {
+    "theme": "Tema",
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "system": "Sistema",
+    "language": "Lingua",
+    "working_days": "Giorni Lavorativi",
+    "hourly_rate": "Tariffa Oraria",
+    "locations": "Luoghi (GPS)",
+    "backup": "Backup & Sync",
+    "reset": "Ripristina",
+    "currency": "Valuta",
+    "time_format": "Formato Ora",
+    "rounding": "Arrotondamento",
+    "zuschlaege": "Supplementi"
+  },
+  "ai": {
+    "ask_explanation": "Chiedi all'IA...",
+    "analyzing": "Analizzando...",
+    "prompt_tax_explain": "Perché le mie tasse sono così alte?",
+    "prompt_overtime": "Come raggiungo il mio obiettivo?"
+  }
+}

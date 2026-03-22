@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: 10, 132, 255;
+  --secondary: 100, 210, 255;
+  --success: 48, 209, 88;
+  --danger: 255, 69, 58;
+  --warning: 255, 159, 10;
+  
+  --bg-light: 242, 242, 247;
+  --bg-dark: 28, 28, 30;
+  
+  --surface-light: 255, 255, 255;
+  --surface-dark: 44, 44, 46;
+}
+
+@layer base {
+  body {
+    @apply antialiased text-neutral-900 bg-neutral-50;
+  }
+  
+  .dark body {
+    @apply text-white bg-dark-bg;
+  }
+}
+
+/* Custom Hide Scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
