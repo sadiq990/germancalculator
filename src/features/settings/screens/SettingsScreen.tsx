@@ -30,7 +30,7 @@ import type { SupportedLocale } from '@core/types/models';
 import type { Theme } from '@theme/index';
 import Constants from 'expo-constants';
 
-const getThemeOptions = (t: any) => [
+const getThemeOptions = (t: ReturnType<typeof useTranslation>['t']) => [
   { value: 'system', label: t('settings.theme_system') },
   { value: 'light', label: t('settings.theme_light') },
   { value: 'dark', label: t('settings.theme_dark') },

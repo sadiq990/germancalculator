@@ -124,6 +124,7 @@ export const HomeScreen: React.FC = () => {
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // NOTE: Intentional — restoreActiveSession logic should run only once on mount, not on dependency changes
   }, []);
 
   // Show error toast
@@ -140,6 +141,7 @@ export const HomeScreen: React.FC = () => {
       toast.warning(t('home.smart_stop_message', { hours: (elapsedSeconds / 3600).toFixed(1) }), 6000);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // NOTE: Intentional — only want to trigger toast on showSmartStop change
   }, [showSmartStop]);
 
   const handleOnboardingComplete = useCallback(() => {

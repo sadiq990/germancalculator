@@ -17,7 +17,7 @@ interface PaywallCardProps {
   onUpgrade: () => void;
 }
 
-const getProFeatures = (t: any) => [
+const getProFeatures = (t: ReturnType<typeof useTranslation>['t']) => [
   { icon: '✓', label: t('paywall.feature_no_watermark') },
   { icon: '✓', label: t('paywall.feature_logo') },
   { icon: '✓', label: t('paywall.feature_csv') },

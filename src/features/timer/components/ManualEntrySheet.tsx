@@ -86,12 +86,17 @@ export const ManualEntrySheet: React.FC<ManualEntrySheetProps> = ({
       setEndStr('');
       setNote('');
       onClose();
-    } catch (err: any) {
-      const msg = err.message;
-      if (['manual_entry.error_order', 'manual_entry.error_future', 'manual_entry.error_overlap'].includes(msg)) {
-        setError(t(msg as any));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        const msg = err.message;
+        const validKeys = ['manual_entry.error_order', 'manual_entry.error_future', 'manual_entry.error_overlap'] as const;
+        if (validKeys.includes(msg as any)) {
+          setError(t(msg as typeof validKeys[number]));
+        } else {
+          setError(msg);
+        }
       } else {
-        setError(msg);
+        setError('Unbekannter Fehler');
       }
     }
   }, [dateStr, startStr, endStr, note, addManualSession, onClose, t]);

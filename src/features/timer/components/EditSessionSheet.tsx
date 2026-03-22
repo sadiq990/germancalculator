@@ -47,7 +47,7 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const isActive = session !== null && session.endTime === null;
+  const isActive = session !== null && session.endTime === null && session.pausedAt === null;
 
   useEffect(() => {
     if (session) {
@@ -102,14 +102,17 @@ export const EditSessionSheet: React.FC<EditSessionSheetProps> = ({
 
       await updateSession(session.id, { startTime, endTime, note }); // ✓ WIRED
       onClose();
-    } catch (err: any) {
-      const msg = err.message;
-      if (['manual_entry.error_order', 'manual_entry.error_future', 'manual_entry.error_overlap'].includes(msg)) {
-        setError(t(msg as any));
-      } else if (msg === 'edit_session.active_locked') {
-        setError(t('edit_session.active_locked'));
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        const msg = err.message;
+        const validKeys = ['manual_entry.error_order', 'manual_entry.error_future', 'manual_entry.error_overlap', 'edit_session.active_locked'] as const;
+        if (validKeys.includes(msg as any)) {
+          setError(t(msg as typeof validKeys[number]));
+        } else {
+          setError(msg);
+        }
       } else {
-        setError(msg);
+        setError('Unbekannter Fehler');
       }
     }
   }, [session, isActive, dateStr, startStr, endStr, note, updateSession, onClose, t]);
