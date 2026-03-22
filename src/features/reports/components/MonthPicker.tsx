@@ -9,6 +9,8 @@ import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Spacing, BorderRadius } from '@theme/spacing';
 import { getPastMonths } from '@shared/utils/dateUtils';
+import { useSettingsStore } from '@store/settingsStore';
+import { useTranslation } from 'react-i18next';
 import type { ReportFilter } from '@core/types/models';
 import type { Theme } from '@theme/index';
 
@@ -18,10 +20,12 @@ interface MonthPickerProps {
 }
 
 export const MonthPicker: React.FC<MonthPickerProps> = ({ selected, onSelect }) => {
+  const { t } = useTranslation();
+  const settings = useSettingsStore((s) => s.settings);
   const theme = useColorScheme();
   const styles = makeStyles(theme);
 
-  const months = getPastMonths(13); // Show 13 months rolling
+  const months = getPastMonths(13, settings.locale); // Show 13 months rolling
 
   const handleSelect = useCallback(
     (month: number, year: number) => {

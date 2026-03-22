@@ -4,7 +4,7 @@
 // ══════════════════════════════════════════════════
 
 import { useEffect, useRef, useCallback } from 'react';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 import type { AppStateStatus } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useTimerStore } from '@store/timerStore';
@@ -102,7 +102,9 @@ export function useTimer(): UseTimerReturn {
     if (isStartingRef.current || isRunning) return;
     isStartingRef.current = true;
 
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== 'web') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     await startSession();
 
     setTimeout(() => {
@@ -115,7 +117,9 @@ export function useTimer(): UseTimerReturn {
     if (isStoppingRef.current || !isRunning) return;
     isStoppingRef.current = true;
 
-    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    if (Platform.OS !== 'web') {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
     await stopSession();
 
     setTimeout(() => {
@@ -124,12 +128,16 @@ export function useTimer(): UseTimerReturn {
   }, [isRunning, stopSession]);
 
   const handlePause = useCallback(async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== 'web') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     await pauseSession();
   }, [pauseSession]);
 
   const handleResume = useCallback(async () => {
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS !== 'web') {
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     await resumeSession();
   }, [resumeSession]);
 

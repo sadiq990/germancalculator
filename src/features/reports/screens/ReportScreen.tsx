@@ -4,7 +4,8 @@
 // ══════════════════════════════════════════════════
 
 import React, { useCallback } from 'react';
-import { View, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { ScreenWrapper } from '@shared/components/ScreenWrapper';
 import { Typography } from '@shared/components/Typography';
@@ -15,13 +16,16 @@ import { WeeklyChart } from '../components/WeeklyChart';
 import { MonthlyStats } from '../components/MonthlyStats';
 import { useReports } from '../hooks/useReports';
 import { usePDF } from '../hooks/usePDF';
-import { formatMonthYearDE } from '@shared/utils/dateUtils';
+import { useSettingsStore } from '@store/settingsStore';
+import { formatMonthYear } from '@shared/utils/dateUtils';
 import { Spacing } from '@theme/spacing';
 import type { Theme } from '@theme/index';
 
 export const ReportScreen: React.FC = () => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
+  const settings = useSettingsStore((s) => s.settings);
 
   const { filter, setFilter, report, weeklyBuckets, maxWeeklyMinutes } = useReports();
   const { isGenerating, generateAndShare } = usePDF();
@@ -31,7 +35,7 @@ export const ReportScreen: React.FC = () => {
     await generateAndShare(report.sessions, filter);
   }, [report.sessions, filter, generateAndShare]);
 
-  const monthLabel = formatMonthYearDE(filter.month, filter.year);
+  const monthLabel = formatMonthYear(filter.month, filter.year, settings.locale);
   const canExport = report.sessions.length > 0 && !isGenerating;
 
   return (
@@ -39,7 +43,7 @@ export const ReportScreen: React.FC = () => {
       <ScrollView showsVerticalScrollIndicator={false} stickyHeaderIndices={[1]}>
         {/* Title */}
         <View style={styles.titleSection}>
-          <Typography variant="title1">Berichte</Typography>
+          <Typography variant="title1">{t('reports.title')}</Typography>
         </View>
 
         {/* Month picker — sticky */}
@@ -57,8 +61,8 @@ export const ReportScreen: React.FC = () => {
           {report.sessionCount === 0 ? (
             <EmptyState
               emoji="📊"
-              title="Keine Einträge"
-              body="Keine Schichten für diesen Monat."
+              title={t('reports.no_sessions_month')}
+              body={t('reports.no_data')}
             />
           ) : (
             <>
@@ -70,17 +74,17 @@ export const ReportScreen: React.FC = () => {
           {/* Export button */}
           <View style={styles.exportSection}>
             <Button
-              label={isGenerating ? 'PDF wird erstellt...' : 'PDF exportieren'}
+              label={isGenerating ? t('reports.pdf_generating') : t('reports.export_pdf')}
               onPress={() => void handleExport()}
               variant="primary"
               fullWidth
               disabled={!canExport}
               loading={isGenerating}
-              accessibilityLabel="Stundenzettel als PDF exportieren"
+              accessibilityLabel={t('accessibility.export_pdf')}
               accessibilityHint={
                 report.sessions.length === 0
-                  ? 'Keine Einträge für diesen Monat'
-                  : 'Öffnet den Teilen-Dialog'
+                  ? t('reports.no_sessions_month')
+                  : t('common.done')
               }
             />
             {report.sessions.length === 0 && (
@@ -89,7 +93,7 @@ export const ReportScreen: React.FC = () => {
                 color={theme.colors.gray400}
                 style={styles.noEntriesHint}
               >
-                Keine Einträge für diesen Monat
+                {t('reports.no_sessions_month')}
               </Typography>
             )}
           </View>

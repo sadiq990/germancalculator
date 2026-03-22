@@ -11,6 +11,7 @@ import { Card } from '@shared/components/Card';
 import { Spacing } from '@theme/spacing';
 import { formatMinutesAsHHMM } from '@shared/utils/timeUtils';
 import { formatCurrencyDE } from '@shared/utils/formatUtils';
+import { useTranslation } from 'react-i18next';
 import type { MonthlyReport } from '@core/types/models';
 import type { Theme } from '@theme/index';
 
@@ -19,6 +20,7 @@ interface MonthlyStatsProps {
 }
 
 export const MonthlyStats: React.FC<MonthlyStatsProps> = ({ report }) => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
 
@@ -26,19 +28,19 @@ export const MonthlyStats: React.FC<MonthlyStatsProps> = ({ report }) => {
     <Card>
       <View style={styles.row}>
         <StatItem
-          label="Gesamtstunden"
+          label={t('reports.total_hours')}
           value={formatMinutesAsHHMM(report.totalMinutes)}
           theme={theme}
           large
         />
         <StatItem
-          label="Schichten"
+          label={t('reports.session_count')}
           value={String(report.sessionCount)}
           theme={theme}
         />
         {report.earnings !== null && (
           <StatItem
-            label="Vergütung (ca.)"
+            label={t('reports.estimated_earnings')}
             value={formatCurrencyDE(report.earnings)}
             theme={theme}
           />

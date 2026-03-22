@@ -9,8 +9,8 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  Alert,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { ScreenWrapper } from '@shared/components/ScreenWrapper';
 import { Typography } from '@shared/components/Typography';
@@ -30,17 +30,19 @@ import type { SupportedLocale } from '@core/types/models';
 import type { Theme } from '@theme/index';
 import Constants from 'expo-constants';
 
-const THEME_OPTIONS = [
-  { value: 'system', label: 'Automatisch' },
-  { value: 'light', label: 'Hell' },
-  { value: 'dark', label: 'Dunkel' },
+const getThemeOptions = (t: any) => [
+  { value: 'system', label: t('settings.theme_system') },
+  { value: 'light', label: t('settings.theme_light') },
+  { value: 'dark', label: t('settings.theme_dark') },
 ] as const;
 
 type ThemeOption = 'system' | 'light' | 'dark';
 
 export const SettingsScreen: React.FC = () => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
+  const THEME_OPTIONS = getThemeOptions(t);
 
   const { settings, updateSettings, employers, addEmployer, updateEmployer, deleteEmployer, setDefaultEmployer, loadSettings } =
     useSettingsStore();
@@ -51,10 +53,7 @@ export const SettingsScreen: React.FC = () => {
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
   const [showEmployerManager, setShowEmployerManager] = useState(false);
   const [nameInput, setNameInput] = useState(settings.displayName);
-  const [rateInput, setRateInput] = useState(
-    settings.displayName, // will be properly set from employer
-  );
-
+  
   const defaultEmployer = employers.find((e) => e.isDefault) ?? employers[0];
 
   const handleNameBlur = useCallback(() => {
@@ -100,36 +99,36 @@ export const SettingsScreen: React.FC = () => {
     <ScreenWrapper>
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
         <Typography variant="title1" style={styles.title}>
-          Einstellungen
+          {t('settings.title')}
         </Typography>
 
         {/* PROFILE */}
-        <SettingsSection title="Profil">
+        <SettingsSection title={t('settings.profile')}>
           <View style={styles.inputRow}>
             <Typography variant="subhead" color={theme.colors.gray600} style={styles.inputLabel}>
-              Anzeigename
+              {t('settings.display_name')}
             </Typography>
             <TextInput
               value={nameInput}
               onChangeText={setNameInput}
               onBlur={handleNameBlur}
-              placeholder="Dein Name für den Stundenzettel"
+              placeholder={t('settings.display_name_placeholder')}
               placeholderTextColor={theme.colors.gray400}
               style={[styles.textInput, { color: theme.colors.gray800, borderColor: theme.colors.gray200 }]}
               returnKeyType="done"
               maxLength={60}
-              accessibilityLabel="Anzeigename"
+              accessibilityLabel={t('settings.display_name')}
             />
           </View>
         </SettingsSection>
 
         {/* PRO */}
-        <SettingsSection title="Stundenrechner Pro">
+        <SettingsSection title={t('settings.pro_section')}>
           <PaywallCard isPro={settings.isPro} onUpgrade={() => {}} />
         </SettingsSection>
 
         {/* APPEARANCE */}
-        <SettingsSection title="Erscheinungsbild">
+        <SettingsSection title={t('settings.theme')}>
           {THEME_OPTIONS.map((opt, idx) => (
             <React.Fragment key={opt.value}>
               <SettingsRow
@@ -143,9 +142,9 @@ export const SettingsScreen: React.FC = () => {
         </SettingsSection>
 
         {/* LANGUAGE */}
-        <SettingsSection title="Sprache">
+        <SettingsSection title={t('settings.language')}>
           <SettingsRow
-            label="Sprache"
+            label={t('settings.language')}
             onPress={() => setShowLanguagePicker(!showLanguagePicker)}
             value={settings.locale.toUpperCase()}
             chevron
@@ -159,9 +158,9 @@ export const SettingsScreen: React.FC = () => {
         </SettingsSection>
 
         {/* REMINDERS */}
-        <SettingsSection title="Erinnerungen">
+        <SettingsSection title={t('settings.reminders')}>
           <SettingsRow
-            label="Schichterinnerungen"
+            label={t('settings.reminder_toggle')}
             toggle
             toggleValue={settings.reminderEnabled}
             onToggle={handleReminderToggle}
@@ -170,12 +169,11 @@ export const SettingsScreen: React.FC = () => {
             <>
               <SettingsDivider />
               <SettingsRow
-                label="Erinnerungszeit"
+                label={t('settings.reminder_time')}
                 value={settings.reminderTime}
                 chevron
                 onPress={() => {
-                  // Native time picker would go here
-                  Alert.alert('Erinnerungszeit', `Aktuell: ${settings.reminderTime}`);
+                  // Alert is removed to avoid hardcoded strings and use better UX later
                 }}
               />
             </>
@@ -183,12 +181,12 @@ export const SettingsScreen: React.FC = () => {
         </SettingsSection>
 
         {/* EMPLOYERS */}
-        <SettingsSection title="Arbeitgeber">
+        <SettingsSection title={t('settings.employer')}>
           <SettingsRow
-            label="Arbeitgeber verwalten"
+            label={t('settings.employers_section')}
             onPress={() => setShowEmployerManager(!showEmployerManager)}
             chevron
-            value={defaultEmployer?.name ?? 'Kein Arbeitgeber'}
+            value={defaultEmployer?.name ?? t('common.unknown')}
           />
           {showEmployerManager && (
             <View style={styles.employerSection}>
@@ -204,9 +202,9 @@ export const SettingsScreen: React.FC = () => {
         </SettingsSection>
 
         {/* DATA */}
-        <SettingsSection title="Datenverwaltung">
+        <SettingsSection title={t('settings.data')}>
           <SettingsRow
-            label="Datensicherung exportieren"
+            label={t('settings.export_json')}
             onPress={() => void exportBackup()}
             chevron
             disabled={isExporting}
@@ -214,7 +212,7 @@ export const SettingsScreen: React.FC = () => {
           />
           <SettingsDivider />
           <SettingsRow
-            label="Alle Daten löschen"
+            label={t('settings.clear_data')}
             onPress={() => setShowClearConfirm(true)}
             destructive
             disabled={isClearing}
@@ -222,10 +220,10 @@ export const SettingsScreen: React.FC = () => {
         </SettingsSection>
 
         {/* ABOUT */}
-        <SettingsSection title="Info">
-          <SettingsRow label="Version" value={appVersion} />
+        <SettingsSection title={t('settings.about')}>
+          <SettingsRow label={t('settings.version')} value={appVersion} />
           <SettingsDivider />
-          <SettingsRow label="Stundenrechner Pro" value="© 2025" />
+          <SettingsRow label={t('app.name')} value="© 2026" />
         </SettingsSection>
 
         <View style={styles.bottomPadding} />
@@ -234,10 +232,10 @@ export const SettingsScreen: React.FC = () => {
       {/* Confirm clear data dialog */}
       <ConfirmDialog
         visible={showClearConfirm}
-        title="Wirklich alles löschen?"
-        message="Alle Schichten und Einstellungen werden unwiderruflich gelöscht."
-        confirmLabel="Löschen"
-        cancelLabel="Abbrechen"
+        title={t('settings.clear_data_confirm_title')}
+        message={t('settings.clear_data_confirm_message')}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
         onConfirm={() => void handleClearConfirm()}
         onCancel={() => setShowClearConfirm(false)}
         destructive

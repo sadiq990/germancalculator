@@ -8,6 +8,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useColorScheme } from '@shared/hooks/useColorScheme';
 import { Typography } from '@shared/components/Typography';
 import { Button } from '@shared/components/Button';
+import { useTranslation } from 'react-i18next';
 import { Spacing, BorderRadius } from '@theme/spacing';
 import type { Theme } from '@theme/index';
 
@@ -16,27 +17,29 @@ interface PaywallCardProps {
   onUpgrade: () => void;
 }
 
-const PRO_FEATURES = [
-  { icon: '✓', label: 'Stundenzettel ohne Wasserzeichen' },
-  { icon: '✓', label: 'Eigenes Arbeitgeberlogo' },
-  { icon: '✓', label: 'CSV-Export' },
-  { icon: '✓', label: 'Mehrere Arbeitgeber' },
-  { icon: '✓', label: 'Einkommensberechnung' },
+const getProFeatures = (t: any) => [
+  { icon: '✓', label: t('paywall.feature_no_watermark') },
+  { icon: '✓', label: t('paywall.feature_logo') },
+  { icon: '✓', label: t('paywall.feature_csv') },
+  { icon: '✓', label: t('paywall.feature_employers') },
+  { icon: '✓', label: t('paywall.feature_wage') },
 ] as const;
 
 export const PaywallCard: React.FC<PaywallCardProps> = ({ isPro, onUpgrade }) => {
+  const { t } = useTranslation();
   const theme = useColorScheme();
   const styles = makeStyles(theme);
+  const PRO_FEATURES = getProFeatures(t);
 
   if (isPro) {
     return (
       <View style={styles.card}>
         <View style={styles.proActive}>
           <Typography variant="title3" color={theme.colors.success}>
-            ✓ Stundenrechner Pro aktiv
+            ✓ {t('settings.pro_active')}
           </Typography>
           <Typography variant="subhead" color={theme.colors.gray600} style={styles.proSubtitle}>
-            Alle Funktionen freigeschaltet
+            {t('paywall.current_plan')}: {t('paywall.pro_plan')}
           </Typography>
         </View>
       </View>
@@ -46,16 +49,16 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({ isPro, onUpgrade }) =>
   return (
     <View style={styles.card}>
       <View style={styles.header}>
-        <Typography variant="title3">Stundenrechner Pro</Typography>
+        <Typography variant="title3">{t('app.name')}</Typography>
         <View style={[styles.badge, { backgroundColor: theme.colors.primaryLight }]}>
           <Typography variant="caption2" color={theme.colors.primary}>
-            PREMIUM
+            {t('common.pro').toUpperCase()}
           </Typography>
         </View>
       </View>
 
       <Typography variant="subhead" color={theme.colors.gray600} style={styles.subtitle}>
-        Alles für professionelles Zeittracking
+        {t('paywall.subtitle')}
       </Typography>
 
       <View style={styles.features}>
@@ -74,27 +77,27 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({ isPro, onUpgrade }) =>
       <View style={styles.pricing}>
         <View style={styles.priceOption}>
           <Typography variant="footnote" color={theme.colors.gray600}>
-            Monatlich
+            {t('paywall.subscribe_monthly')}
           </Typography>
-          <Typography variant="headline">€2,99 / Monat</Typography>
+          <Typography variant="headline">{t('paywall.monthly_price')}</Typography>
         </View>
         <View style={[styles.priceOption, styles.priceOptionHighlighted, { borderColor: theme.colors.primary, backgroundColor: theme.colors.primaryLight }]}>
           <Typography variant="footnote" color={theme.colors.primary}>
-            Jährlich · Spare 44%
+            {t('paywall.yearly_price')} · {t('paywall.yearly_save')}
           </Typography>
           <Typography variant="headline" color={theme.colors.primary}>
-            €19,99 / Jahr
+            {t('paywall.yearly_price')}
           </Typography>
         </View>
       </View>
 
       <Button
-        label="Bald verfügbar"
+        label={t('paywall.coming_soon')}
         onPress={onUpgrade}
         variant="primary"
         fullWidth
         disabled
-        accessibilityLabel="Pro-Version abonnieren — bald verfügbar"
+        accessibilityLabel={t('paywall.coming_soon')}
       />
 
       <Typography
@@ -102,7 +105,7 @@ export const PaywallCard: React.FC<PaywallCardProps> = ({ isPro, onUpgrade }) =>
         color={theme.colors.gray400}
         style={styles.disclaimer}
       >
-        Jederzeit kündbar · Preise inkl. MwSt.
+        {t('paywall.cancel_anytime')}
       </Typography>
     </View>
   );

@@ -137,7 +137,7 @@ export const HomeScreen: React.FC = () => {
   // Show smart stop banner as toast
   useEffect(() => {
     if (showSmartStop && isRunning) {
-      toast.warning('Bereit zum Stoppen? Du arbeitest schon lange.', 6000);
+      toast.warning(t('home.smart_stop_message', { hours: (elapsedSeconds / 3600).toFixed(1) }), 6000);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSmartStop]);
@@ -177,7 +177,7 @@ export const HomeScreen: React.FC = () => {
     );
   }, [todayMinutes, weeklyMinutes, monthMinutes, dismissedWarnings]);
 
-  const sessionGroups = useMemo(() => groupSessionsByDay(sessions), [sessions]);
+  const sessionGroups = useMemo(() => groupSessionsByDay(sessions, settings.locale, t), [sessions, settings.locale, t]);
 
   const defaultEmployer = getDefaultEmployer();
 
