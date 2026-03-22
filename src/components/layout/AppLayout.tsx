@@ -6,15 +6,21 @@ import { SideNav } from './SideNav';
 
 export const AppLayout: React.FC = () => {
   return (
-    <div className="flex flex-col h-[100dvh] w-full bg-neutral-50 dark:bg-dark-bg text-neutral-900 dark:text-dark-text overflow-hidden transition-colors">
-      <Header />
-      <div className="flex flex-1 overflow-hidden relative">
-        <SideNav />
-        <main className="flex-1 h-full overflow-y-auto bg-neutral-50 dark:bg-dark-bg scroll-smooth pb-16 sm:pb-0 relative">
+    <div className="min-h-screen flex flex-col md:flex-row bg-[#F2F2F7] dark:bg-black">
+      {/* Desktop Sidebar */}
+      <SideNav />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-h-screen relative md:ml-64">
+        <Header />
+        
+        <main className="flex-1 overflow-x-hidden pt-16 pb-24 md:pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
           <Outlet />
         </main>
+
+        {/* Mobile View Bottom Navigation */}
+        <BottomNav />
       </div>
-      <BottomNav />
     </div>
   );
 };

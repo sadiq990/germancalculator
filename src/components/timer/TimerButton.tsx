@@ -1,47 +1,68 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Pause, StopCircle } from 'lucide-react';
+import { useTimerStore } from '../../store/useTimerStore';
 
-interface TimerButtonProps {
-  isActive: boolean;
-  onToggle: () => void;
-}
+export const TimerButton: React.FC = () => {
+  const { status, startTimer, pauseTimer, resumeTimer, stopTimer } = useTimerStore();
 
-export const TimerButton: React.FC<TimerButtonProps> = ({ isActive, onToggle }) => {
+  const handleToggle = () => {
+    if (status === 'idle') startTimer();
+    else if (status === 'running') pauseTimer();
+    else if (status === 'paused') resumeTimer();
+  };
+
   return (
-    <div className="flex justify-center items-center my-8">
-      <div className="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-        {isActive && (
-          <>
+    <div className="flex flex-col items-center gap-6">
+      <motion.button
+        onClick={handleToggle}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className={`
+          w-24 h-24 sm:w-28 sm:h-28 rounded-full flex items-center justify-center transition-all shadow-ios-hover shadow-ios-glass relative z-10
+          ${status === 'running' 
+            ? 'bg-ios-orange text-white ring-4 ring-ios-orange/20' 
+            : 'bg-ios-blue text-white ring-4 ring-ios-blue/20'
+          }
+        `}
+      >
+        <AnimatePresence mode="wait">
+          {status === 'running' ? (
             <motion.div
-              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute inset-0 bg-primary/20 rounded-full"
-            />
+              key="pause"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+            >
+              <Pause size={48} fill="currentColor" />
+            </motion.div>
+          ) : (
             <motion.div
-              animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0, 0.4] }}
-              transition={{ duration: 2, delay: 0.5, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute inset-4 bg-primary/30 rounded-full"
-            />
-          </>
-        )}
-        
+              key="play"
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.5, opacity: 0 }}
+            >
+              <Play size={48} fill="currentColor" strokeWidth={1} className="ml-2" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      {status !== 'idle' && (
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onToggle}
-          className={`
-            relative z-10 w-40 h-40 md:w-48 md:h-48 rounded-full shadow-lg flex flex-col justify-center items-center select-none outline-none focus:ring-4
-            ${isActive 
-              ? 'bg-danger text-white hover:bg-danger/90 focus:ring-danger/50' 
-              : 'bg-primary text-white hover:bg-primary/90 focus:ring-primary/50'
-            }
-          `}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          onClick={stopTimer}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="flex items-center gap-2 px-6 py-2 rounded-full bg-ios-red/10 text-ios-red font-bold text-sm tracking-wide uppercase"
         >
-          <span className="text-2xl md:text-3xl font-bold tracking-wider">
-            {isActive ? 'STOP' : 'START'}
-          </span>
+          <StopCircle size={20} />
+          Finish
         </motion.button>
-      </div>
+      )}
     </div>
   );
 };

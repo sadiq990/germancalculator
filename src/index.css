@@ -1,36 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --primary: 10, 132, 255;
-  --secondary: 100, 210, 255;
-  --success: 48, 209, 88;
-  --danger: 255, 69, 58;
-  --warning: 255, 159, 10;
-  
-  --bg-light: 242, 242, 247;
-  --bg-dark: 28, 28, 30;
-  
-  --surface-light: 255, 255, 255;
-  --surface-dark: 44, 44, 46;
+  --ios-blue: #007AFF;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
 }
 
 @layer base {
   body {
-    @apply antialiased text-neutral-900 bg-neutral-50;
+    @apply antialiased text-neutral-900 bg-[#F2F2F7] selection:bg-ios-blue/30 font-sans;
+    -webkit-tap-highlight-color: transparent;
   }
   
   .dark body {
-    @apply text-white bg-dark-bg;
+    @apply text-white bg-black;
   }
 }
 
-/* Custom Hide Scrollbar */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+@layer components {
+  .glass {
+    @apply bg-white/70 dark:bg-dark-surface/70 backdrop-blur-xl border border-white/20 dark:border-white/10;
+  }
+  
+  .glass-heavy {
+    @apply bg-white/90 dark:bg-dark-surface/90 backdrop-blur-2xl border border-white/30 dark:border-white/10;
+  }
+
+  .ios-card {
+    @apply bg-white dark:bg-ios-dark-5 rounded-ios-lg shadow-ios border-none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .safe-padding-b {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+/* Smooth Transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Custom Overrides */
+input, select, button {
+  @apply focus:outline-none focus:ring-2 focus:ring-ios-blue/50;
 }
